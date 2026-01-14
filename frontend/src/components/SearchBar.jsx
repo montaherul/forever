@@ -4,37 +4,47 @@ import { assets } from "../assets/assets";
 import { useLocation } from "react-router-dom";
 
 const SearchBar = () => {
-  const { search, setSearch, showSearch, setShowSearch } = useContext(ShopContext);
+  const { search, setSearch, showSearch, setShowSearch } =
+    useContext(ShopContext);
   const [visible, setVisible] = useState(false);
   const location = useLocation();
 
   useEffect(() => {
-    if(location.pathname.includes('collection') && showSearch){
-      setVisible(true);
-    }
-    else{
-      setVisible(false);
-    }
-  }, [location])
+    const onCollection = location.pathname.includes("collection");
+    setVisible(onCollection && showSearch);
+  }, [location.pathname, showSearch]);
 
   return showSearch && visible ? (
-    <div className="border-t border-b bg-gray-50 text-center">
-      <div className="inline-flex items-center justify-center border border-gray-400 px-5 py-2 my-5 mx-3 rounded-full">
+    <div className="border-t border-b bg-gradient-to-r from-green-50 via-white to-green-50 text-center py-6 shadow-sm">
+      <div className="inline-flex items-center justify-center border-2 border-green-400 px-6 py-3 my-2 mx-3 rounded-full bg-white shadow-lg hover:shadow-xl transition-all duration-300 w-full max-w-md">
+        <img
+          className="w-5 h-5 mr-3 opacity-60"
+          src={assets.search_icon}
+          alt="Search"
+        />
         <input
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          className="flex-1 outline-none bg-inherit text-sm"
+          className="flex-1 outline-none bg-transparent text-sm placeholder-gray-400 text-gray-700"
           type="text"
-          placeholder="Search"
+          placeholder="Search for fresh groceries..."
         />
-        <img className="w-4" src={assets.search_icon} alt="" />
+        {search && (
+          <button
+            onClick={() => setSearch("")}
+            className="ml-2 text-gray-400 hover:text-gray-600 font-bold text-lg"
+          >
+            ×
+          </button>
+        )}
       </div>
-      <img
+      <button
         onClick={() => setShowSearch(false)}
-        className="inline w-3 cursor-pointer"
-        src={assets.cross_icon}
-        alt=""
-      />
+        className="inline-flex items-center gap-2 mt-2 text-sm text-gray-600 hover:text-green-600 font-medium transition-colors"
+      >
+        <img className="w-3 h-3" src={assets.cross_icon} alt="Close" />
+        Close Search
+      </button>
     </div>
   ) : null;
 };

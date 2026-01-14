@@ -1,5 +1,6 @@
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
+import couponModel from "../models/couponModel.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -20,18 +21,35 @@ const syncOrdersToJSON = async () => {
 
 const placeOrder = async (req, res) => {
   try {
-    const { userId, items, amount, address } = req.body;
+    const {
+      userId,
+      items,
+      amount,
+      address,
+      coupon,
+      couponSavings = 0,
+    } = req.body;
     const orderData = {
       userId,
       items,
       amount,
       address,
+      coupon: coupon || null,
+      couponSavings,
       paymentMethod: "COD",
       payment: false,
       date: Date.now(),
     };
     const newOrder = new orderModel(orderData);
     await newOrder.save();
+
+    // Increment coupon usage if applicable
+    if (coupon && coupon.code) {
+      await couponModel.updateOne(
+        { code: coupon.code },
+        { $inc: { usageCount: 1 } }
+      );
+    }
 
     await userModel.findByIdAndUpdate(userId, { cartData: {} });
 

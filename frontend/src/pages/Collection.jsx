@@ -6,33 +6,91 @@ import ProductItem from "../components/ProductItem";
 
 const Collection = () => {
   const { products, search, showSearch } = useContext(ShopContext);
-  const [showFilter, setShowFilter] = useState(false);
+  const [showFilter, setShowFilter] = useState(true);
   const [filterProducts, setFilterProducts] = useState([]);
   const [category, setCategory] = useState([]);
   const [subcategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relevant");
+  const [minPrice, setMinPrice] = useState(0);
+  const [maxPrice, setMaxPrice] = useState(2000);
+
+  const categories = [
+    // Grocery
+    { name: "Fresh Vegetables" },
+    { name: "Fresh Fruits" },
+    { name: "Dairy Products" },
+    { name: "Bakery Items" },
+    { name: "Breakfast" },
+    { name: "Drinks" },
+    { name: "Meat & Seafood" },
+    { name: "Grains & Cereals" },
+    { name: "Snacks" },
+    // New sectors
+    { name: "Electronics" },
+    { name: "Fashion" },
+  ];
+
+  const subcategories = [
+    // Grocery
+    "Organic",
+    "Regular",
+    "Premium",
+    "Berries",
+    "Milk",
+    "Yogurt",
+    "Bread",
+    "Eggs",
+    "Coffee",
+    "Poultry",
+    "Seafood",
+    "Rice",
+    "Nuts",
+    "Cereal",
+    "Avocado",
+    // Electronics
+    "Laptops",
+    "Smartphones",
+    "Headphones",
+    "Smart Home",
+    "Wearables",
+    "Televisions",
+    // Fashion
+    "Men",
+    "Women",
+    "Shoes",
+    "Accessories",
+    "Activewear",
+  ];
+
+  const toggleValue = (value, list, setter) => {
+    setter((prev) =>
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value]
+    );
+  };
 
   const toggleCategory = (e) => {
-    if (category.includes(e.target.value)) {
-      setCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setCategory((prev) => [...prev, e.target.value]);
-    }
+    const value = e.target.value;
+    toggleValue(value, category, setCategory);
   };
 
   const toggleSubCategory = (e) => {
-    if (subCategory.includes(e.target.value)) {
-      setSubCategory((prev) => prev.filter((item) => item !== e.target.value));
-    } else {
-      setSubCategory((prev) => [...prev, e.target.value]);
-    }
+    const value = e.target.value;
+    toggleValue(value, subcategory, setSubCategory);
   };
 
   const applyFilter = () => {
     let productsCopy = products.slice();
     if (showSearch && search) {
-      productsCopy = productsCopy.filter((item) =>
-        item.name.toLowerCase().includes(search.toLowerCase())
+      const searchLower = search.toLowerCase();
+      productsCopy = productsCopy.filter(
+        (item) =>
+          item.name.toLowerCase().includes(searchLower) ||
+          item.description.toLowerCase().includes(searchLower) ||
+          item.category.toLowerCase().includes(searchLower) ||
+          item.subCategory.toLowerCase().includes(searchLower) ||
+          item.tags?.some((tag) => tag.toLowerCase().includes(searchLower))
       );
     }
     if (category.length > 0) {
@@ -45,6 +103,11 @@ const Collection = () => {
         subcategory.includes(item.subCategory)
       );
     }
+    // Price range filter (uses base price)
+    productsCopy = productsCopy.filter((item) => {
+      const price = Number(item.price) || 0;
+      return price >= minPrice && price <= maxPrice;
+    });
     setFilterProducts(productsCopy);
   };
 
@@ -65,125 +128,235 @@ const Collection = () => {
   useEffect(() => {
     applyFilter();
   }, [category, subcategory, search, showSearch, products]);
+
   useEffect(() => {
     sortProduct();
-  }, sortType);
+  }, [sortType]);
+
+  const clearFilters = () => {
+    setCategory([]);
+    setSubCategory([]);
+    setSortType("relevant");
+    setMinPrice(0);
+    setMaxPrice(2000);
+  };
+
   return (
-    <div className="flex flex-col sm:flex-row gap-1 sm:gap-10 pt-10 border-t">
-      {/*Filter options */}
-      <div className="min-w-60">
-        <p
-          onClick={() => setShowFilter(!showFilter)}
-          className="my-2 text-xl flex items-center cursor-pointer gap-2"
-        >
-          FILTERS
-        </p>
-        <img
-          className={`h-3 sm:hidden ${showFilter ? "rotate-90" : ""}`}
-          src={assets.dropdown_icon}
-          alt=""
-        />
-        {/* Category Filter */}
-        <div
-          className={`border border-gray-300 p1-5 py-3 mt-6 ${
-            showFilter ? "" : "hidden"
-          } sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">CATEGORIES</p>
-          <div className="flex flex-col gap-2 tex-sm font-ligh text-gray-700">
-            <p className="flex gap-2">
-              <input
-                className="w-3"
-                type="checkbox"
-                onChange={toggleCategory}
-                value={"Men"}
+    <div className="flex flex-col sm:flex-row gap-6 pt-10 border-t">
+      {/* Filter Sidebar */}
+      <div className="min-w-72">
+        <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl p-6 shadow-lg border-2 border-green-200">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-green-900">FILTERS</h2>
+            <button
+              onClick={() => setShowFilter(!showFilter)}
+              className="sm:hidden bg-green-600 text-white p-2 rounded-lg hover:bg-green-700 transition-colors"
+            >
+              <img
+                className={`h-4 w-4 transition-transform ${
+                  showFilter ? "rotate-180" : ""
+                }`}
+                src={assets.dropdown_icon}
+                alt="Toggle"
               />
-              Men
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-3"
-                type="checkbox"
-                onChange={toggleCategory}
-                value={"Women"}
-              />
-              Women
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-3"
-                type="checkbox"
-                onChange={toggleCategory}
-                value={"Kids"}
-              />
-              Kids
-            </p>
+            </button>
           </div>
-        </div>
-        {/* Subcategory filters */}
-        <div
-          className={`border border-gray-300 p1-5 py-3 mt-6 ${
-            showFilter ? "" : "hidden"
-          } sm:block`}
-        >
-          <p className="mb-3 text-sm font-medium">TYPE</p>
-          <div className="flex flex-col gap-2 tex-sm font-ligh text-gray-700">
-            <p className="flex gap-2">
-              <input
-                className="w-3"
-                type="checkbox"
-                onChange={toggleSubCategory}
-                value={"Topwear"}
-              />
-              Topwear
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-3"
-                type="checkbox"
-                onChange={toggleSubCategory}
-                value={"Bottomwear"}
-              />
-              Bottomwear
-            </p>
-            <p className="flex gap-2">
-              <input
-                className="w-3"
-                type="checkbox"
-                onChange={toggleSubCategory}
-                value={"Winterwear"}
-              />
-              Winterwear
-            </p>
+
+          {(category.length > 0 || subcategory.length > 0) && (
+            <button
+              onClick={clearFilters}
+              className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 px-4 rounded-lg mb-4 transition-colors"
+            >
+              Clear All Filters
+            </button>
+          )}
+
+          {/* Active Filters Pills */}
+          {(category.length > 0 || subcategory.length > 0) && (
+            <div className="flex flex-wrap gap-2 mb-4">
+              {category.map((cat) => (
+                <button
+                  key={cat}
+                  onClick={() => toggleValue(cat, category, setCategory)}
+                  className="flex items-center gap-2 px-3 py-1 rounded-full bg-green-50 text-green-700 border border-green-200 text-xs font-semibold"
+                >
+                  {cat} ✕
+                </button>
+              ))}
+              {subcategory.map((sub) => (
+                <button
+                  key={sub}
+                  onClick={() => toggleValue(sub, subCategory, setSubCategory)}
+                  className="flex items-center gap-2 px-3 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-200 text-xs font-semibold"
+                >
+                  {sub} ✕
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Category Filter */}
+          <div className={`${showFilter ? "" : "hidden"} sm:block space-y-4`}>
+            <div className="bg-white rounded-xl p-5 shadow-md">
+              <h3 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                CATEGORIES
+              </h3>
+              <div className="space-y-3 max-h-80 overflow-y-auto">
+                {categories.map((cat) => (
+                  <label
+                    key={cat.name}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-green-50 transition-colors cursor-pointer group"
+                  >
+                    <input
+                      className="w-5 h-5 text-green-600 rounded border-gray-300 focus:ring-green-500 cursor-pointer"
+                      type="checkbox"
+                      onChange={toggleCategory}
+                      value={cat.name}
+                      checked={category.includes(cat.name)}
+                    />
+                    <span className="text-xl">{cat.icon}</span>
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-green-700">
+                      {cat.name}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Subcategory Filter */}
+            <div className="bg-white rounded-xl p-5 shadow-md">
+              <h3 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                TYPE
+              </h3>
+              <div className="space-y-2 max-h-64 overflow-y-auto">
+                {subcategories.map((subCat) => (
+                  <label
+                    key={subCat}
+                    className="flex items-center gap-3 p-2 rounded-lg hover:bg-orange-50 transition-colors cursor-pointer group"
+                  >
+                    <input
+                      className="w-5 h-5 text-orange-600 rounded border-gray-300 focus:ring-orange-500 cursor-pointer"
+                      type="checkbox"
+                      onChange={toggleSubCategory}
+                      value={subCat}
+                      checked={subcategory.includes(subCat)}
+                    />
+                    <span className="text-sm font-medium text-gray-700 group-hover:text-orange-700">
+                      {subCat}
+                    </span>
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            {/* Price Filter */}
+            <div className="bg-white rounded-xl p-5 shadow-md">
+              <h3 className="font-bold text-lg text-gray-800 mb-4 flex items-center gap-2">
+                PRICE
+              </h3>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Min</span>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-24 px-2 py-1 border rounded"
+                      value={minPrice}
+                      onChange={(e) => setMinPrice(Number(e.target.value) || 0)}
+                    />
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Max</span>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-24 px-2 py-1 border rounded"
+                      value={maxPrice}
+                      onChange={(e) => setMaxPrice(Number(e.target.value) || 0)}
+                    />
+                  </div>
+                </div>
+                <input
+                  type="range"
+                  min="0"
+                  max="4000"
+                  step="10"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value) || 0)}
+                  className="w-full accent-green-600"
+                />
+                <p className="text-xs text-gray-500">
+                  Showing items between ${minPrice} and ${maxPrice}
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-      {/*Right side */}
+
+      {/* Products Section */}
       <div className="flex-1">
-        <div className="flex justify-between text-base sm:text-2xl mb-4">
-          <Title text1={"ALL"} text2={"COLLECTIONS"}></Title>
-          {/*Product sort */}
+        {/* Header */}
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <Title text1={"ALL"} text2={"PRODUCTS"} />
+            <p className="text-sm text-gray-600 mt-2">
+              {filterProducts.length} items across grocery, electronics, and
+              fashion
+            </p>
+          </div>
+          {/* Sort Dropdown */}
           <select
             onChange={(e) => setSortType(e.target.value)}
-            className="border-2 border-gray-300 text-sm px-2"
+            value={sortType}
+            className="border-2 border-green-400 text-sm px-4 py-3 rounded-lg bg-white font-semibold text-gray-700 hover:border-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 transition-all cursor-pointer shadow-md"
           >
-            <option value="relevant">Sort by: Relevant</option>
-            <option value="low-high">Sort by: Low to High</option>
-            <option value="high-low">Sort by: High to Low</option>
+            <option value="relevant">Sort: Relevant</option>
+            <option value="low-high">Sort: Low to High</option>
+            <option value="high-low">Sort: High to Low</option>
           </select>
         </div>
-        {/*Map Products */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
-          {filterProducts.map((item, index) => (
-            <ProductItem
-              key={index}
-              name={item.name}
-              id={item._id}
-              price={item.price}
-              image={item.images}
-            />
-          ))}
-        </div>
+
+        {/* Product Grid */}
+        {filterProducts.length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 gap-y-6">
+            {filterProducts.map((item, index) => (
+              <ProductItem
+                key={index}
+                name={item.name}
+                id={item._id}
+                price={item.price}
+                discount={item.discount}
+                image={item.images}
+                sizePricing={item.sizePricing}
+                sizes={item.sizes}
+                category={item.category}
+                inStock={item.inStock}
+                stockQuantity={item.stockQuantity}
+                sizeStock={item.sizeStock}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-20 bg-gray-50 rounded-2xl">
+            <div className="text-6xl mb-4 text-gray-300 font-bold">
+              No Results
+            </div>
+            <h3 className="text-2xl font-bold text-gray-800 mb-2">
+              No products found
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Try adjusting your filters or search terms
+            </p>
+            <button
+              onClick={clearFilters}
+              className="bg-green-600 hover:bg-green-700 text-white font-bold px-6 py-3 rounded-lg transition-colors"
+            >
+              Clear Filters
+            </button>
+          </div>
+        )}
       </div>
     </div>
   );

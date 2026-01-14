@@ -11,11 +11,11 @@ const seedDatabase = async () => {
     await mongoose.connect(process.env.MONGO_URI);
     console.log("Connected to MongoDB");
 
-    // Clear existing data (optional - comment out if you want to keep data)
-    // await productModel.deleteMany({});
-    // await userModel.deleteMany({});
-    // await orderModel.deleteMany({});
-    // console.log('Cleared existing data');
+    // Clear existing data
+    await productModel.deleteMany({});
+    await userModel.deleteMany({});
+    await orderModel.deleteMany({});
+    console.log("Cleared existing data");
 
     // Insert products
     const products = await productModel.insertMany(productData);

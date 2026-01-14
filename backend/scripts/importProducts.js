@@ -21,11 +21,14 @@ async function importProducts() {
     let productsData = JSON.parse(fs.readFileSync(productsPath, "utf8"));
     console.log(`✓ Loaded ${productsData.length} products from JSON file`);
 
-    // Add date field to each product (required by schema)
-    productsData = productsData.map((product) => ({
-      ...product,
-      date: Date.now(),
-    }));
+    // Remove _id and __v fields, add date field
+    productsData = productsData.map((product) => {
+      const { _id, __v, ...productWithoutId } = product;
+      return {
+        ...productWithoutId,
+        date: Date.now(),
+      };
+    });
 
     // Clear existing products (optional)
     const deleteResult = await productModel.deleteMany({});
