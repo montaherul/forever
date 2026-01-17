@@ -233,21 +233,38 @@ const ShopContextProvider = (props) => {
     return product;
   };
 
-  const getProductsData = async () => {
-    try {
-      const response = await axios.get(backendUrl + "/api/product/list");
-      if (response.data.success) {
-        // Normalize products to ensure sizePricing is available
-        const normalizedProducts = response.data.products.map(normalizePricing);
-        setProducts(normalizedProducts);
-      } else {
-        toast.error(response.data.message);
-      }
-    } catch (error) {
-      console.log(error);
-      toast.error(error.message);
+const getProductsData = async () => {
+  try {
+    const response = await axios.get(backendUrl + "/api/product/list");
+
+    const data = response.data;
+
+    // Case 1: backend returns { success, products }
+    if (data?.success && Array.isArray(data.products)) {
+      setProducts(data.products.map(normalizePricing));
+      return;
     }
-  };
+
+    // Case 2: backend returns { products }
+    if (Array.isArray(data.products)) {
+      setProducts(data.products.map(normalizePricing));
+      return;
+    }
+
+    // Case 3: backend returns direct array
+    if (Array.isArray(data)) {
+      setProducts(data.map(normalizePricing));
+      return;
+    }
+
+    console.error("Unexpected product API response:", data);
+    toast.error("Invalid product data from server");
+  } catch (error) {
+    console.log("Product fetch error:", error);
+    toast.error("Failed to load products");
+  }
+};
+
 
   const getUserCart = async (token) => {
     try {
