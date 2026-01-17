@@ -28,8 +28,8 @@ app.use(express.urlencoded({ limit: "50mb", extended: true }));
 // CORS Configuration
 const corsOptions = {
   origin: [
-    "https://forever-frontend.vercel.app",
-    "https://forever-admin.vercel.app",
+    "https://forever-main-f.vercel.app/",
+    "https://forever-main-admin-p.vercel.app/",
     "http://localhost:5173",
     "http://localhost:5174",
     "http://localhost:3000",
