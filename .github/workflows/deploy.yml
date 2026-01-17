@@ -2,11 +2,9 @@ name: Deploy to Vercel & Render
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy-backend:
@@ -32,7 +30,7 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_FRONTEND }}
           working-directory: ./frontend
-          production: true
+          vercel-args: "--prod"
 
   deploy-admin:
     name: Deploy Admin to Vercel
@@ -47,4 +45,4 @@ jobs:
           vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
           vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_ADMIN }}
           working-directory: ./admin
-          production: true
+          vercel-args: "--prod"
