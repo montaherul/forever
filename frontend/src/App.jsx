@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { ShopContext } from "./context/ShopContext";
-
+import { HelmetProvider } from "react-helmet-async";
 const App = () => {
   const { theme } = useContext(ShopContext);
   return (

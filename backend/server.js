@@ -51,7 +51,7 @@ app.use("/api/cart", cartRouter);
 app.use("/api/order", orderRouter);
 app.use("/api/coupon", couponRouter);
 app.use("/api/review", reviewRouter);
-app.use("/api/admin/reviews", adminReviewRouter);
+
 
 
 // Health check

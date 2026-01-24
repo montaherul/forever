@@ -8,6 +8,8 @@ import OurPolicy from "../components/OurPolicy";
 import NewsletterBox from "../components/NewsletterBox";
 import ReviewsSlider from "../components/ReviewsSlider";
 import SmartRecommendations from "../components/SmartRecommendations";
+import SEO from "../components/SEO";
+
 
 const sectionVariant = {
   hidden: { opacity: 0, y: 60 },
@@ -37,36 +39,46 @@ const AnimatedSection = ({ children }) => {
 
 const Home = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-white via-green-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Hero (always visible, no scroll delay) */}
-        <Hero />
+    <>
+      <SEO
+        title="Smart Grocery – Fresh Grocery Delivery | Organic Food Online"
+        description="Order fresh groceries online with same-day delivery. Buy organic fruits, vegetables & daily essentials from trusted local farms."
+        keywords="online grocery delivery, fresh groceries online, organic food delivery, buy groceries online, same day grocery delivery"
+        url="https://forever-main-f.vercel.app/"
+        image="https://img.lightshot.app/lv7ryQE9RuOvSs7S12jVCA.png"
+      />
 
-        <AnimatedSection>
-          <LatestCollection />
-        </AnimatedSection>
+      <div className="min-h-screen bg-gradient-to-b from-white via-green-50 to-white dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Hero (always visible, no scroll delay) */}
+          <Hero />
 
-        <AnimatedSection>
-          <BestSeller />
-        </AnimatedSection>
+          <AnimatedSection>
+            <LatestCollection />
+          </AnimatedSection>
 
-        <AnimatedSection>
-          <SmartRecommendations />
-        </AnimatedSection>
+          <AnimatedSection>
+            <BestSeller />
+          </AnimatedSection>
 
-        <AnimatedSection>
-          <ReviewsSlider />
-        </AnimatedSection>
+          <AnimatedSection>
+            <SmartRecommendations />
+          </AnimatedSection>
 
-        <AnimatedSection>
-          <OurPolicy />
-        </AnimatedSection>
+          <AnimatedSection>
+            <ReviewsSlider />
+          </AnimatedSection>
 
-        <AnimatedSection>
-          <NewsletterBox />
-        </AnimatedSection>
+          <AnimatedSection>
+            <OurPolicy />
+          </AnimatedSection>
+
+          <AnimatedSection>
+            <NewsletterBox />
+          </AnimatedSection>
+        </div>
       </div>
-    </div>
+    </>
   );
 };
 
