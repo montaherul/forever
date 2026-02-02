@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { ShopContext } from "../context/ShopContext";
 
-
-
+/* ---------------- TEXT ANIMATION VARIANT ---------------- */
 const textVariant = {
   hidden: { opacity: 0, y: 40 },
   show: (i = 1) => ({
@@ -13,7 +13,7 @@ const textVariant = {
     transition: {
       delay: i * 0.15,
       duration: 0.7,
-      ease: "easeOut",
+      ease: [0.21, 0.45, 0.32, 0.9],
     },
   }),
 };
@@ -22,15 +22,20 @@ const Hero = () => {
   const [products, setProducts] = useState([]);
   const [index, setIndex] = useState(0);
   const [loading, setLoading] = useState(true);
+
   const navigate = useNavigate();
-  /* ---------------- FETCH PRODUCTS FROM BACKEND ---------------- */
+
+  /* ✅ GET CURRENCY FROM CONTEXT */
+  const { currency } = useContext(ShopContext);
+
+  /* ---------------- FETCH PRODUCTS ---------------- */
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        // 🔥 change URL if needed
         const res = await axios.get(
           "https://forever-main-2.onrender.com/api/product/list"
         );
+
         setProducts(res.data.products.filter((p) => p.inStock));
         setLoading(false);
       } catch (error) {
@@ -52,128 +57,147 @@ const Hero = () => {
     return () => clearInterval(interval);
   }, [products]);
 
+  /* ---------------- LOADING ---------------- */
   if (loading) {
     return (
-      <div className="h-[400px] flex items-center justify-center text-xl font-semibold">
-        Loading hero...
+      <div className="h-[500px] w-full flex flex-col items-center justify-center space-y-4">
+        <div className="relative w-16 h-16">
+          <div className="absolute inset-0 border-4 border-green-100 dark:border-slate-800 rounded-full"></div>
+          <div className="absolute inset-0 border-4 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p className="text-slate-500 dark:text-slate-400 font-medium animate-pulse">
+          Discovering Trending Products...
+        </p>
       </div>
     );
   }
 
   const activeProduct = products[index];
-return (
-  <motion.div
-    initial={{ opacity: 0, scale: 0.96 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{ duration: 0.8 }}
-    className="relative flex flex-col lg:flex-row border border-green-200 dark:border-slate-700 rounded-3xl overflow-hidden bg-gradient-to-r from-green-50 to-yellow-50 dark:from-slate-900 dark:to-slate-800 shadow-2xl my-10"
-  >
-    {/* ---------------- LEFT CONTENT ---------------- */}
-    <div className="w-full lg:w-1/2 flex items-center">
-      <div className="w-full px-6 sm:px-10 lg:px-16 py-14 sm:py-20">
-        <div className="max-w-xl">
-          <motion.p
-            variants={textVariant}
-            initial="hidden"
-            animate="show"
-            custom={0}
-            className="font-semibold text-green-600 tracking-widest text-xs sm:text-sm mb-3"
-          >
-            TRENDING PRODUCT
-          </motion.p>
+  if (!activeProduct) return null;
 
-          {/* ✅ FIXED TITLE SPACE */}
-          <div className="min-h-[96px] sm:min-h-[120px] lg:min-h-[140px] flex items-end">
-            <AnimatePresence mode="wait">
-              <motion.h1
-                key={activeProduct._id + "-title"}
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5, ease: "easeOut" }}
-                className="font-extrabold text-2xl sm:text-3xl md:text-4xl lg:text-5xl leading-tight text-green-900 dark:text-green-400"
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="relative w-full max-w-[1400px] mx-auto my-6 sm:my-10"
+    >
+      <div className="relative flex flex-col lg:flex-row min-h-[500px] sm:min-h-[600px] rounded-[2.5rem] overflow-hidden bg-white dark:bg-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.1)] dark:shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-slate-100 dark:border-slate-800">
+        {/* Background blobs */}
+        <div className="absolute inset-0 pointer-events-none">
+          <div className="absolute -top-24 -left-24 w-96 h-96 bg-green-100/40 dark:bg-green-900/10 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-orange-100/40 dark:bg-orange-900/10 rounded-full blur-3xl"></div>
+        </div>
+
+        {/* ---------------- LEFT CONTENT ---------------- */}
+        <div className="relative z-10 w-full lg:w-3/5 flex items-center">
+          <div className="w-full px-8 sm:px-14 lg:px-20 py-12 lg:py-16">
+            <div className="max-w-2xl">
+              <motion.div
+                variants={textVariant}
+                initial="hidden"
+                animate="show"
+                custom={0}
+                className="flex items-center gap-3 mb-6"
               >
-                {activeProduct.name}
-              </motion.h1>
-            </AnimatePresence>
+                <span className="h-px w-8 bg-green-500"></span>
+                <p className="font-bold text-green-600 dark:text-green-400 tracking-[0.2em] text-[10px] sm:text-xs uppercase">
+                  Trending Selection
+                </p>
+              </motion.div>
+
+              {/* PRODUCT NAME */}
+              <div className="min-h-[140px]">
+                <AnimatePresence mode="wait">
+                  <motion.h1
+                    key={activeProduct._id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 20 }}
+                    transition={{ duration: 0.5 }}
+                    className="font-black text-4xl sm:text-5xl lg:text-6xl leading-tight"
+                  >
+                    {activeProduct.name}
+                  </motion.h1>
+                </AnimatePresence>
+              </div>
+
+              {/* DESCRIPTION */}
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={activeProduct._id + "-desc"}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="mt-6 text-slate-500 dark:text-slate-400 text-lg leading-relaxed line-clamp-3"
+                >
+                  {activeProduct.description}
+                </motion.p>
+              </AnimatePresence>
+
+              {/* PRICE + CTA */}
+              <div className="flex flex-col sm:flex-row gap-8 mt-12">
+                {/* ✅ CURRENCY FIXED HERE */}
+                <motion.span
+                  key={currency}
+                  initial={{ opacity: 0, y: 6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-4xl font-black"
+                >
+                  {currency}
+                  {Number(activeProduct.price).toLocaleString()}
+                </motion.span>
+
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() =>
+                    navigate(`/product/${activeProduct._id}`)
+                  }
+                  className="px-10 py-4 font-bold text-white bg-slate-900 rounded-full"
+                >
+                  SHOP COLLECTION
+                </motion.button>
+              </div>
+
+              {/* SLIDER INDICATORS */}
+              <div className="flex gap-2 mt-12">
+                {products.map((_, i) => (
+                  <div
+                    key={i}
+                    className={`h-1 rounded-full transition-all ${
+                      i === index
+                        ? "w-12 bg-green-500"
+                        : "w-3 bg-slate-300"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
+        </div>
 
-          {/* ✅ FIXED DESCRIPTION SPACE */}
-          <div className="min-h-[88px] sm:min-h-[104px] lg:min-h-[112px] mt-4">
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={activeProduct._id + "-desc"}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -15 }}
-                transition={{ duration: 0.45, ease: "easeOut" }}
-                className="text-gray-600 dark:text-slate-300 text-sm sm:text-base md:text-lg leading-relaxed line-clamp-4"
-              >
-                {activeProduct.description}
-              </motion.p>
-            </AnimatePresence>
-          </div>
-
-          {/* ✅ PRICE + CTA FIXED ROW */}
-          <motion.div
-            variants={textVariant}
-            initial="hidden"
-            animate="show"
-            custom={3}
-            className="flex flex-wrap items-center gap-4 sm:gap-6 mt-8"
-          >
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={activeProduct._id + "-price"}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                transition={{ duration: 0.35 }}
-                className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-600"
-              >
-                ₹{activeProduct.price}
-                {activeProduct.discount > 0 && (
-                  <span className="ml-2 text-sm sm:text-base text-green-600 font-semibold">
-                    -{activeProduct.discount}%
-                  </span>
-                )}
-              </motion.p>
-            </AnimatePresence>
-
-            <motion.button
-              whileHover={{ scale: 1.07 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={() => navigate(`/product/${activeProduct._id}`)}
-              className="bg-orange-500 hover:bg-orange-600 text-white font-semibold px-6 sm:px-8 py-3 rounded-2xl shadow-lg hover:shadow-2xl transition-all"
-            >
-              SHOP NOW
-            </motion.button>
-          </motion.div>
+        {/* ---------------- RIGHT IMAGE ---------------- */}
+        <div className="relative w-full lg:w-2/5 flex items-center justify-center p-12">
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={activeProduct._id}
+              src={
+                activeProduct.images?.[0] ||
+                "https://picsum.photos/600/600"
+              }
+              alt={activeProduct.name}
+              initial={{ opacity: 0, scale: 0.85 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 1.1 }}
+              transition={{ duration: 0.7 }}
+              className="w-full h-full object-contain"
+            />
+          </AnimatePresence>
         </div>
       </div>
-    </div>
-
-    {/* ---------------- RIGHT IMAGE ---------------- */}
-    <div className="relative w-full lg:w-1/2 min-h-[300px] sm:min-h-[380px] lg:min-h-[460px] bg-white flex items-center justify-center overflow-hidden">
-      <AnimatePresence mode="wait">
-        <motion.img
-          key={activeProduct._id}
-          src={activeProduct.images?.[0]}
-          alt={activeProduct.name}
-          initial={{ opacity: 0, scale: 1.08 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          transition={{ duration: 0.8 }}
-          className="w-full h-full object-contain p-6 sm:p-10 absolute inset-0"
-        />
-      </AnimatePresence>
-
-      {/* Decorative glow */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-green-200/20 via-transparent to-orange-200/20" />
-    </div>
-  </motion.div>
-);
-
+    </motion.div>
+  );
 };
 
 export default Hero;

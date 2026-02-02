@@ -1,56 +1,30 @@
 import React, { useState, useContext, useEffect } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { useLocation } from "react-router-dom";
-import { assets } from "../assets/assets";
 import Title from "../components/Title";
 import ProductItem from "../components/ProductItem";
+import { motion, AnimatePresence } from "framer-motion";
 
 const Collection = () => {
-  const { products, search, showSearch, setSearch, setShowSearch } =
-    useContext(ShopContext);
+  const { products, search, showSearch } = useContext(ShopContext);
   const location = useLocation();
-  const [showFilter, setShowFilter] = useState(true);
+
   const [filterProducts, setFilterProducts] = useState([]);
-  const [localSearch, setLocalSearch] = useState(search || "");
   const [category, setCategory] = useState([]);
   const [subcategory, setSubCategory] = useState([]);
   const [sortType, setSortType] = useState("relevant");
-  const [minPrice, setMinPrice] = useState(0);
-  const [maxPrice, setMaxPrice] = useState(2000);
-  const [featuredType, setFeaturedType] = useState(null);
+  const [minPrice] = useState(0);
+  const [maxPrice] = useState(2000);
 
-  // Check if we navigated from featured selection
   useEffect(() => {
-    if (
-      location.state?.selectedSort &&
-      ["Top ranking", "New arrivals", "Top deals"].includes(
-        location.state.selectedSort,
-      )
-    ) {
+    if (location.state?.selectedSort) {
       setSortType(location.state.selectedSort);
     }
   }, [location]);
 
-  const toggleValue = (value, list, setter) => {
-    setter((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value],
-    );
-  };
-
-  const toggleCategory = (e) => {
-    const value = e.target.value;
-    toggleValue(value, category, setCategory);
-  };
-
-  const toggleSubCategory = (e) => {
-    const value = e.target.value;
-    toggleValue(value, subcategory, setSubCategory);
-  };
-
   const applyFilter = () => {
     let productsCopy = products.slice();
+
     if (showSearch && search) {
       const searchLower = search.toLowerCase();
       productsCopy = productsCopy.filter(
@@ -62,51 +36,49 @@ const Collection = () => {
           item.tags?.some((tag) => tag.toLowerCase().includes(searchLower)),
       );
     }
+
     if (category.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         category.includes(item.category),
       );
     }
+
     if (subcategory.length > 0) {
       productsCopy = productsCopy.filter((item) =>
         subcategory.includes(item.subCategory),
       );
     }
-    // Price range filter (uses base price)
+
     productsCopy = productsCopy.filter((item) => {
       const price = Number(item.price) || 0;
       return price >= minPrice && price <= maxPrice;
     });
+
     setFilterProducts(productsCopy);
   };
 
   useEffect(() => {
     applyFilter();
-  }, [category, subcategory, search, showSearch, products, sortType]);
+  }, [category, subcategory, search, showSearch, products]);
 
-  // Apply sorting after filtering
   useEffect(() => {
     if (filterProducts.length > 0) {
       let sorted = [...filterProducts];
       switch (sortType) {
         case "low-high":
-          sorted = sorted.sort((a, b) => Number(a.price) - Number(b.price));
+          sorted.sort((a, b) => Number(a.price) - Number(b.price));
           break;
         case "high-low":
-          sorted = sorted.sort((a, b) => Number(b.price) - Number(a.price));
+          sorted.sort((a, b) => Number(b.price) - Number(a.price));
           break;
         case "Top ranking":
-          sorted = sorted.sort(
+        case "Top deals":
+          sorted.sort(
             (a, b) => (Number(b.discount) || 0) - (Number(a.discount) || 0),
           );
           break;
         case "New arrivals":
-          sorted = sorted.reverse();
-          break;
-        case "Top deals":
-          sorted = sorted.sort(
-            (a, b) => (Number(b.discount) || 0) - (Number(a.discount) || 0),
-          );
+          sorted.reverse();
           break;
         default:
           break;
@@ -119,47 +91,61 @@ const Collection = () => {
     setCategory([]);
     setSubCategory([]);
     setSortType("relevant");
-    setMinPrice(0);
-    setMaxPrice(2000);
   };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Main Content - Products */}
-          <main className="flex-1">
-            {/* Header Section */}
-            <div className="mb-8">
-              <Title text1={"ALL"} text2={"PRODUCTS"} />
-              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mt-4">
-                <p className="text-sm text-gray-600 dark:text-slate-400 font-medium">
-                  Showing{" "}
-                  <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                    {filterProducts.length}
-                  </span>{" "}
-                  products
-                </p>
-                <select
-                  onChange={(e) => setSortType(e.target.value)}
-                  value={sortType}
-                  className="px-4 py-2.5 border-2 border-emerald-400 dark:border-emerald-600 rounded-xl bg-white dark:bg-slate-800 text-gray-900 dark:text-slate-100 text-sm font-semibold hover:border-emerald-600 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer shadow-sm"
-                >
-                  <option value="relevant">Sort: Relevant</option>
-                  <option value="low-high">Sort: Low to High</option>
-                  <option value="high-low">Sort: High to Low</option>
-                </select>
-              </div>
-            </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-950 transition-colors pb-24">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <header className="mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8 border-b dark:border-slate-800 pb-10">
+          <div className="text-center md:text-left">
+            <Title text1="OUR" text2="COLLECTION" />
 
-            {/* Product Grid */}
+            <div className="flex items-center justify-center md:justify-start gap-4 mt-2">
+              <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] bg-emerald-50 dark:bg-emerald-900/20 px-4 py-1.5 rounded-full border border-emerald-100 dark:border-emerald-800">
+                {filterProducts.length} PRODUCTS FOUND
+              </span>
+
+              {search && showSearch && (
+                <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  SEARCHING: "{search}"
+                </span>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-4 bg-white dark:bg-slate-900 p-2 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest pl-4">
+              Sort By
+            </span>
+            <select
+              value={sortType}
+              onChange={(e) => setSortType(e.target.value)}
+              className="px-6 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 text-slate-900 dark:text-white text-xs font-black uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all cursor-pointer border-none"
+            >
+              <option value="relevant">Relevant</option>
+              <option value="low-high">Price: Low to High</option>
+              <option value="high-low">Price: High to Low</option>
+              <option value="Top ranking">Top Ranking</option>
+              <option value="New arrivals">New Arrivals</option>
+              <option value="Top deals">Hot Deals</option>
+            </select>
+          </div>
+        </header>
+
+        <main>
+          <AnimatePresence mode="wait">
             {filterProducts.length > 0 ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-5 lg:gap-6">
-                {filterProducts.map((item, index) => (
+              <motion.div
+                key="grid"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8"
+              >
+                {filterProducts.map((item) => (
                   <ProductItem
-                    key={index}
-                    name={item.name}
+                    key={item._id}
                     id={item._id}
+                    name={item.name}
                     price={item.price}
                     discount={item.discount}
                     image={item.images}
@@ -171,29 +157,34 @@ const Collection = () => {
                     sizeStock={item.sizeStock}
                   />
                 ))}
-              </div>
+              </motion.div>
             ) : (
-              <div className="text-center py-20 bg-gradient-to-br from-gray-50 to-gray-100 dark:from-slate-800 dark:to-slate-900 rounded-2xl border border-gray-200 dark:border-slate-700 shadow-sm">
-                <div className="mb-4">
-                  <i className="fa-solid fa-inbox text-5xl text-gray-300 dark:text-slate-600"></i>
+              <motion.div
+                key="empty"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="text-center py-32 bg-white dark:bg-slate-900 rounded-[3rem] shadow-xl shadow-black/[0.02] border border-gray-100 dark:border-slate-800"
+              >
+                <div className="w-24 h-24 bg-gray-50 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-8">
+                  <i className="fa-solid fa-seedling text-4xl text-emerald-200"></i>
                 </div>
-                <h3 className="text-2xl font-bold text-gray-800 dark:text-slate-100 mb-2">
-                  No products found
+                <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-4">
+                  No results found
                 </h3>
-                <p className="text-gray-600 dark:text-slate-400 mb-6 max-w-sm mx-auto">
-                  Try adjusting your filters, price range, or search terms to
-                  find what you're looking for.
+                <p className="text-slate-500 dark:text-slate-400 mb-10 max-w-sm mx-auto leading-relaxed">
+                  We couldn't find any products matching your criteria. Try
+                  adjusting your filters or searching for something else.
                 </p>
                 <button
                   onClick={clearFilters}
-                  className="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold px-8 py-3 rounded-xl transition-colors shadow-md hover:shadow-lg"
+                  className="bg-slate-900 dark:bg-emerald-600 hover:bg-slate-800 dark:hover:bg-emerald-700 text-white font-black px-12 py-5 rounded-2xl shadow-2xl transition-all uppercase tracking-[0.2em] text-xs"
                 >
-                  Reset Filters
+                  Clear All Filters
                 </button>
-              </div>
+              </motion.div>
             )}
-          </main>
-        </div>
+          </AnimatePresence>
+        </main>
       </div>
     </div>
   );

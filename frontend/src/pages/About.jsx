@@ -5,28 +5,35 @@ import { assets } from "../assets/assets";
 
 const About = () => {
   return (
-    <div>
-      <div className="text-3xl text-center pt-10 pb-6 border-t dark:border-slate-800">
+    <div className="bg-white dark:bg-slate-950 transition-colors">
+      <div className="text-center pt-16 pb-12 border-t dark:border-slate-800 bg-gradient-to-b from-gray-50 to-transparent dark:from-slate-900/20">
         <Title text1={"ABOUT"} text2={"US"} />
-        <p className="text-sm text-gray-600 dark:text-slate-300 mt-3 max-w-2xl mx-auto">
-          Your trusted partner for fresh, organic groceries
+        <p className="text-base text-gray-500 dark:text-slate-400 mt-4 max-w-2xl mx-auto px-4 leading-relaxed font-medium">
+          Cultivating a healthier future by delivering the finest farm-fresh,
+          organic groceries directly to your neighborhood.
         </p>
       </div>
 
-      <div className="my-12 flex flex-col md:flex-row gap-16 items-center">
-        <div className="w-full md:w-1/2">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-16 flex flex-col lg:flex-row gap-16 items-center">
+        <div className="w-full lg:w-1/2 relative group">
+          <div className="absolute -inset-4 bg-emerald-500/10 rounded-3xl blur-2xl group-hover:bg-emerald-500/20 transition-all duration-500"></div>
           <img
-            className="w-full rounded-2xl shadow-2xl hover:shadow-3xl transition-shadow duration-300"
+            className="relative w-full rounded-2xl shadow-2xl transition-transform duration-500 hover:scale-[1.02]"
             src={assets.about_img}
             alt="About Us"
           />
         </div>
-        <div className="flex flex-col justify-center gap-6 md:w-1/2 text-gray-600">
-          <div className="bg-green-50 dark:bg-green-900/20 p-6 rounded-xl border-l-4 border-green-600 dark:border-green-500">
-            <h3 className="text-2xl font-bold text-green-900 dark:text-green-400 mb-3">
-              Our Story
-            </h3>
-            <p className="leading-relaxed dark:text-slate-300">
+        <div className="flex flex-col justify-center gap-8 lg:w-1/2">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:border-emerald-200 dark:hover:border-emerald-900 transition-all">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-emerald-100 dark:bg-emerald-900/30 rounded-lg flex items-center justify-center text-emerald-600">
+                <i className="fa-solid fa-book-open"></i>
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white font-poppins">
+                Our Story
+              </h3>
+            </div>
+            <p className="text-gray-600 dark:text-slate-400 leading-relaxed font-medium">
               Smart Grocery was born out of a passion for fresh, healthy living
               and a desire to revolutionize the way people shop for groceries
               online. Our journey began with a simple idea: to connect local
@@ -35,22 +42,32 @@ const About = () => {
             </p>
           </div>
 
-          <div className="bg-orange-50 dark:bg-orange-900/20 p-6 rounded-xl border-l-4 border-orange-600 dark:border-orange-500">
-            <h3 className="text-2xl font-bold text-orange-900 dark:text-orange-400 mb-3">
-              Our Mission
-            </h3>
-            <p className="leading-relaxed dark:text-slate-300">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:border-orange-200 dark:hover:border-orange-900 transition-all">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center text-orange-600">
+                <i className="fa-solid fa-bullseye"></i>
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white font-poppins">
+                Our Mission
+              </h3>
+            </div>
+            <p className="text-gray-600 dark:text-slate-400 leading-relaxed font-medium">
               We're dedicated to providing farm-fresh, organic groceries that
               nourish your family and support local farmers. Every product is
               carefully selected for quality, freshness, and nutritional value.
             </p>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 p-6 rounded-xl border-l-4 border-blue-600 dark:border-blue-500">
-            <h3 className="text-2xl font-bold text-blue-900 dark:text-blue-400 mb-3">
-              Our Promise
-            </h3>
-            <p className="leading-relaxed dark:text-slate-300">
+          <div className="bg-white dark:bg-slate-900 p-8 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-800 hover:border-blue-200 dark:hover:border-blue-900 transition-all">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center text-blue-600">
+                <i className="fa-solid fa-handshake-angle"></i>
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white font-poppins">
+                Our Promise
+              </h3>
+            </div>
+            <p className="text-gray-600 dark:text-slate-400 leading-relaxed font-medium">
               100% fresh guarantee, same-day delivery, and complete transparency
               about where your food comes from. Your health and satisfaction are
               our top priorities.
@@ -59,69 +76,97 @@ const About = () => {
         </div>
       </div>
 
-      <div className="text-3xl text-center py-8">
-        <Title text1={"WHY"} text2={"CHOOSE US"} />
+      <div className="bg-gray-50 dark:bg-slate-900/50 py-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <Title text1={"WHY"} text2={"CHOOSE US"} />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+            <div className="group bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-10 shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-colors duration-500">
+                <i className="fa-solid fa-leaf text-2xl text-emerald-600 group-hover:text-white"></i>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-tight">
+                Farm-Fresh Quality
+              </h3>
+              <p className="text-gray-500 dark:text-slate-400 leading-relaxed font-medium">
+                We meticulously select and source each product directly from
+                trusted local farms to ensure it meets our stringent quality
+                standards. Every item is checked for freshness before delivery.
+              </p>
+            </div>
+
+            <div className="group bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-10 shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-orange-500 group-hover:text-white transition-colors duration-500">
+                <i className="fa-solid fa-bolt text-2xl text-orange-600 group-hover:text-white"></i>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-tight">
+                Lightning Delivery
+              </h3>
+              <p className="text-gray-500 dark:text-slate-400 leading-relaxed font-medium">
+                With our user-friendly interface and streamlined ordering
+                process, shopping has never been easier. Order before 2 PM for
+                same-day delivery to your doorstep!
+              </p>
+            </div>
+
+            <div className="group bg-white dark:bg-slate-900 border border-gray-100 dark:border-slate-800 rounded-3xl p-10 shadow-sm hover:shadow-2xl transition-all duration-500 transform hover:-translate-y-2">
+              <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-blue-500 group-hover:text-white transition-colors duration-500">
+                <i className="fa-solid fa-headset text-2xl text-blue-600 group-hover:text-white"></i>
+              </div>
+              <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-tight">
+                24/7 Support
+              </h3>
+              <p className="text-gray-500 dark:text-slate-400 leading-relaxed font-medium">
+                Our team of dedicated professionals is here to assist you every
+                step of the way, ensuring your satisfaction is our top priority.
+                We're always just a message away!
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-        <div className="group bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 hover:from-green-100 hover:to-green-200 dark:hover:from-green-900/30 dark:hover:to-green-800/30 border-2 border-green-200 dark:border-green-700 rounded-2xl px-8 py-12 flex flex-col gap-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-          <h3 className="text-xl font-bold text-green-900 dark:text-green-400">
-            Farm-Fresh Quality
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-24">
+        <div className="bg-gradient-to-br from-emerald-600 to-green-700 dark:from-emerald-900 dark:to-green-950 rounded-[3rem] p-12 sm:p-20 text-center relative overflow-hidden shadow-2xl">
+          <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_2px_2px,#fff_1px,transparent_0)] bg-[size:40px_40px]"></div>
+          <h3 className="text-3xl sm:text-5xl font-black text-white mb-6 font-poppins relative z-10">
+            Our Achievements
           </h3>
-          <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
-            We meticulously select and source each product directly from trusted
-            local farms to ensure it meets our stringent quality standards.
-            Every item is checked for freshness before delivery.
-          </p>
-        </div>
-
-        <div className="group bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 hover:from-orange-100 hover:to-orange-200 dark:hover:from-orange-900/30 dark:hover:to-orange-800/30 border-2 border-orange-200 dark:border-orange-700 rounded-2xl px-8 py-12 flex flex-col gap-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-          <h3 className="text-xl font-bold text-orange-900 dark:text-orange-400">
-            Lightning-Fast Delivery
-          </h3>
-          <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
-            With our user-friendly interface and streamlined ordering process,
-            shopping has never been easier. Order before 2 PM for same-day
-            delivery to your doorstep!
-          </p>
-        </div>
-
-        <div className="group bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 hover:from-blue-100 hover:to-blue-200 dark:hover:from-blue-900/30 dark:hover:to-blue-800/30 border-2 border-blue-200 dark:border-blue-700 rounded-2xl px-8 py-12 flex flex-col gap-5 shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2">
-          <h3 className="text-xl font-bold text-blue-900 dark:text-blue-400">
-            24/7 Customer Support
-          </h3>
-          <p className="text-gray-700 dark:text-slate-300 leading-relaxed">
-            Our team of dedicated professionals is here to assist you every step
-            of the way, ensuring your satisfaction is our top priority. We're
-            always just a message away!
-          </p>
-        </div>
-      </div>
-
-      <div className="bg-gradient-to-r from-green-100 to-orange-100 dark:from-green-900/20 dark:to-orange-900/20 rounded-2xl p-10 mb-12 text-center border dark:border-slate-700">
-        <h3 className="text-3xl font-bold text-green-900 dark:text-green-400 mb-4">
-          Our Achievements
-        </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
-          <div className="bg-white dark:bg-slate-800 rounded-xl p-6 shadow-md border dark:border-slate-700">
-            <p className="text-4xl font-bold text-green-600 dark:text-green-400">
-              10K+
-            </p>
-            <p className="text-gray-600 dark:text-slate-300 mt-2">
-              Happy Customers
-            </p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <p className="text-4xl font-bold text-orange-600">50+</p>
-            <p className="text-gray-600 mt-2">Local Farm Partners</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <p className="text-4xl font-bold text-blue-600">500+</p>
-            <p className="text-gray-600 mt-2">Fresh Products</p>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-md">
-            <p className="text-4xl font-bold text-yellow-600">99%</p>
-            <p className="text-gray-600 mt-2">Satisfaction Rate</p>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12 relative z-10">
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all cursor-default group">
+              <p className="text-4xl sm:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform">
+                10K+
+              </p>
+              <p className="text-emerald-100 text-sm font-bold uppercase tracking-widest">
+                Happy Customers
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all cursor-default group">
+              <p className="text-4xl sm:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform">
+                50+
+              </p>
+              <p className="text-emerald-100 text-sm font-bold uppercase tracking-widest">
+                Local Partners
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all cursor-default group">
+              <p className="text-4xl sm:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform">
+                500+
+              </p>
+              <p className="text-emerald-100 text-sm font-bold uppercase tracking-widest">
+                Fresh Products
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md rounded-3xl p-8 border border-white/20 hover:bg-white/20 transition-all cursor-default group">
+              <p className="text-4xl sm:text-5xl font-black text-white mb-2 group-hover:scale-110 transition-transform">
+                99%
+              </p>
+              <p className="text-emerald-100 text-sm font-bold uppercase tracking-widest">
+                Satisfaction
+              </p>
+            </div>
           </div>
         </div>
       </div>

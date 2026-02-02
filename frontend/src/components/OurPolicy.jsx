@@ -1,79 +1,68 @@
 import React from "react";
-import { assets } from "../assets/assets";
 
 const OurPolicy = () => {
+  const policies = [
+    {
+      title: "Swift Delivery",
+      desc: "Order by 2 PM for same-day harvest delivery.",
+      icon: "fa-truck-fast",
+      color: "bg-emerald-500",
+      shadow: "shadow-emerald-500/20",
+    },
+    {
+      title: "100% Guaranteed",
+      desc: "Farm-fresh quality or your money back instantly.",
+      icon: "fa-certificate",
+      color: "bg-amber-500",
+      shadow: "shadow-amber-500/20",
+    },
+    {
+      title: "Expert Support",
+      desc: "Our lifestyle experts are here for you 24/7.",
+      icon: "fa-headset",
+      color: "bg-blue-500",
+      shadow: "shadow-blue-500/20",
+    },
+  ];
+
   return (
-    <div className="flex flex-col sm:flex-row justify-around gap-12 sm:gap-2 text-center py-20 text-xs sm:text-sm md:text-base text-gray-700 dark:text-slate-300 bg-green-50 dark:bg-slate-800/50 rounded-2xl my-10">
-      <div className="group hover:scale-105 transition-transform">
-        <div className="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center m-auto mb-5 group-hover:bg-green-700 transition-colors">
-          <svg
-            className="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 my-24">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        {policies.map((policy, idx) => (
+          <div
+            key={idx}
+            className="group relative p-8 sm:p-10 rounded-[2.5rem] bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl shadow-black/[0.02] hover:shadow-2xl hover:-translate-y-2 transition-all duration-500 overflow-hidden"
           >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4"
-            />
-          </svg>
-        </div>
-        <p className="font-bold text-green-900 dark:text-green-400 text-lg">
-          Same Day Delivery
-        </p>
-        <p className="text-gray-600 dark:text-slate-400 mt-2">
-          Order before 2 PM for same day delivery
-        </p>
+            {/* Background Accent */}
+            <div
+              className={`absolute -right-4 -bottom-4 w-24 h-24 rounded-full ${policy.color} opacity-[0.03] group-hover:scale-[3] transition-transform duration-700`}
+            ></div>
+
+            <div className="relative z-10">
+              <div
+                className={`w-16 h-16 rounded-2xl ${policy.color} ${policy.shadow} shadow-xl flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform duration-500`}
+              >
+                <i
+                  className={`fa-solid ${policy.icon} text-2xl text-white`}
+                ></i>
+              </div>
+
+              <h3 className="text-xl font-black text-slate-800 dark:text-white mb-3 font-poppins">
+                {policy.title}
+              </h3>
+
+              <p className="text-slate-500 dark:text-slate-400 text-sm leading-relaxed font-medium">
+                {policy.desc}
+              </p>
+
+              <div className="mt-8 flex items-center gap-2 text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.2em] opacity-0 group-hover:opacity-100 transition-opacity translate-x-[-10px] group-hover:translate-x-0 duration-500">
+                Learn More <i className="fa-solid fa-arrow-right-long"></i>
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
-      <div className="group hover:scale-105 transition-transform">
-        <div className="w-16 h-16 bg-orange-500 rounded-full flex items-center justify-center m-auto mb-5 group-hover:bg-orange-600 transition-colors">
-          <svg
-            className="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-        </div>
-        <p className="font-bold text-green-900 dark:text-green-400 text-lg">
-          100% Fresh Guarantee
-        </p>
-        <p className="text-gray-600 dark:text-slate-400 mt-2">
-          Farm-fresh quality or your money back
-        </p>
-      </div>
-      <div className="group hover:scale-105 transition-transform">
-        <div className="w-16 h-16 bg-yellow-500 rounded-full flex items-center justify-center m-auto mb-5 group-hover:bg-yellow-600 transition-colors">
-          <svg
-            className="w-8 h-8 text-white"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"
-            />
-          </svg>
-        </div>
-        <p className="font-bold text-green-900 dark:text-green-400 text-lg">
-          24/7 Support
-        </p>
-        <p className="text-gray-600 dark:text-slate-400 mt-2">
-          We're here to help anytime you need
-        </p>
-      </div>
-    </div>
+    </section>
   );
 };
 

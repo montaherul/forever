@@ -15,6 +15,8 @@ import ForgotPassword from "./pages/ForgotPassword";
 import PlaceOrder from "./pages/PlaceOrder";
 import Orders from "./pages/Orders";
 import Profile from "./pages/Profile";
+import Compare from "./pages/Compare";
+import Wishlist from "./pages/Wishlist";
 
 const router = createBrowserRouter([
   {
@@ -69,6 +71,15 @@ const router = createBrowserRouter([
         path: "/profile",
         element: <Profile />,
       },
+      {
+        path: "/compare",
+        element: <Compare  />,
+      },
+
+    {
+      path: "/wishlist",
+      element: <Wishlist />,
+    }
     ],
   },
 ]);

@@ -3,6 +3,7 @@ import { ShopContext } from "../context/ShopContext";
 import Title from "./Title";
 import ProductItem from "./ProductItem";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 
 const LatestCollection = () => {
   const { products } = useContext(ShopContext);
@@ -18,76 +19,96 @@ const LatestCollection = () => {
   if (!latestProducts.length) return null;
 
   return (
-    <div className="my-10 px-3 sm:px-6">
-      {/* Header */}
-      <div className="text-center py-8 text-3xl">
-        <Title text1={"NEW"} text2={"ARRIVALS"} />
+    <section className="max-w-7xl mx-auto my-24 px-4 sm:px-6">
+      {/* Header Section */}
+      <div className="text-center mb-16">
+        <Title text1="NEW" text2="ARRIVALS" />
 
-        <p className="max-w-2xl mx-auto text-xs sm:text-sm md:text-base text-gray-600 dark:text-slate-300 mt-4">
-          Fresh grocery picks, brand-new electronics, and the latest fashion
-          drops. One cart, fast delivery.
+        <p className="max-w-2xl mx-auto text-sm sm:text-base text-slate-500 dark:text-slate-400 mt-6 leading-relaxed">
+          Explore our handpicked fresh arrivals. From premium groceries to
+          cutting-edge electronics and high-street fashion, delivered straight
+          to your doorstep.
         </p>
 
-        <div className="flex justify-center gap-3 sm:gap-4 mt-6 text-xs sm:text-sm flex-wrap">
-          <div className="flex items-center gap-2 bg-green-50 dark:bg-green-900/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
-            <span className="font-medium text-green-700 dark:text-green-400">
-              Fast delivery
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-blue-50 dark:bg-blue-900/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
-            <span className="font-medium text-blue-700 dark:text-blue-400">
-              Secure checkout
-            </span>
-          </div>
-
-          <div className="flex items-center gap-2 bg-pink-50 dark:bg-pink-900/30 px-3 py-1.5 sm:px-4 sm:py-2 rounded-full">
-            <span className="font-medium text-pink-700 dark:text-pink-400">
-              Free fashion returns
-            </span>
-          </div>
+        {/* Feature Highlights */}
+        <div className="flex flex-wrap justify-center gap-4 mt-10">
+          {[
+            {
+              label: "Lightning Delivery",
+              color:
+                "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400",
+              icon: "fa-bolt",
+            },
+            {
+              label: "Secure Payments",
+              color:
+                "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400",
+              icon: "fa-shield-halved",
+            },
+            {
+              label: "Elite Support",
+              color:
+                "bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400",
+              icon: "fa-headset",
+            },
+          ].map((feat, idx) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 10 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-2xl shadow-sm border border-black/5 dark:border-white/5 ${feat.color}`}
+            >
+              <i className={`fa-solid ${feat.icon} text-sm`}></i>
+              <span className="font-bold text-xs uppercase tracking-wider">
+                {feat.label}
+              </span>
+            </motion.div>
+          ))}
         </div>
       </div>
 
-      {/* Products Grid */}
-      {/* Responsive product grid */}
-      <div className="flex justify-center">
-        <div className="w-full max-w-7xl">
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 gap-y-6 place-items-stretch">
-            {latestProducts.map((item) => (
-              <div key={item._id} className="w-full h-full flex">
-                <ProductItem
-                  id={item._id}
-                  image={item.images}
-                  name={item.name}
-                  price={item.price}
-                  discount={item.discount}
-                  sizePricing={item.sizePricing}
-                  sizes={item.sizes}
-                  category={item.category}
-                  inStock={item.inStock}
-                  stockQuantity={item.stockQuantity}
-                  sizeStock={item.sizeStock}
-                />
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* Grid Layout */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 gap-y-10">
+        {latestProducts.map((item, idx) => (
+          <motion.div
+            key={item._id}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: (idx % 5) * 0.05 }}
+            viewport={{ once: true }}
+          >
+            <ProductItem
+              id={item._id}
+              image={item.images}
+              name={item.name}
+              price={item.price}
+              discount={item.discount}
+              sizePricing={item.sizePricing}
+              sizes={item.sizes}
+              category={item.category}
+              inStock={item.inStock}
+              stockQuantity={item.stockQuantity}
+              sizeStock={item.sizeStock}
+            />
+          </motion.div>
+        ))}
       </div>
 
-      {/* SEE MORE CTA */}
-      <div className="flex justify-center mt-10">
-        <button
+      {/* CTA Section */}
+      <div className="flex justify-center mt-20">
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => navigate("/collection")}
-          className="group relative inline-flex items-center gap-2 px-8 py-3 rounded-full bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg hover:shadow-2xl transition-all"
+          className="group relative flex items-center gap-4 px-10 py-4 rounded-2xl bg-slate-900 dark:bg-white text-white dark:text-slate-900 font-bold shadow-2xl transition-all overflow-hidden"
         >
-          See more products
-          <span className="transform group-hover:translate-x-1 transition-transform">
-            →
-          </span>
-        </button>
+          <span className="relative z-10">EXPLORE FULL COLLECTION</span>
+          <i className="fa-solid fa-arrow-right-long group-hover:translate-x-1 transition-transform relative z-10"></i>
+          <div className="absolute inset-0 bg-emerald-600 scale-x-0 group-hover:scale-x-100 origin-left transition-transform duration-500"></div>
+        </motion.button>
       </div>
-    </div>
+    </section>
   );
 };
 

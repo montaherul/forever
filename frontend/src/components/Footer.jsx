@@ -1,32 +1,47 @@
+import React from "react";
 import { assets } from "../assets/assets";
 import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="bg-gray-900 text-gray-300 mt-24">
+    <footer className="bg-slate-950 text-slate-400 mt-24 border-t border-slate-800/50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* TOP LINKS */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-8 py-14 text-sm">
+        {/* Main Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-y-12 gap-x-8 py-16 text-sm">
           <div>
-            <h4 className="text-white font-semibold mb-4">Get to Know Us</h4>
-            <ul className="space-y-2">
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">
+              Get to Know Us
+            </h4>
+            <ul className="space-y-3">
               <li>
-                <Link to="/about" className="footer-link">
+                <Link
+                  to="/about"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   About Foody
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="footer-link">
+                <Link
+                  to="/contact"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link to="/careers" className="footer-link">
+                <Link
+                  to="/careers"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Careers
                 </Link>
               </li>
               <li>
-                <Link to="/blog" className="footer-link">
+                <Link
+                  to="/blog"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Blog
                 </Link>
               </li>
@@ -34,25 +49,39 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4">Shop With Us</h4>
-            <ul className="space-y-2">
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">
+              Shop With Us
+            </h4>
+            <ul className="space-y-3">
               <li>
-                <Link to="/collection" className="footer-link">
+                <Link
+                  to="/collection"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   All Products
                 </Link>
               </li>
               <li>
-                <Link to="/cart" className="footer-link">
+                <Link
+                  to="/cart"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Your Cart
                 </Link>
               </li>
               <li>
-                <Link to="/orders" className="footer-link">
+                <Link
+                  to="/orders"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Your Orders
                 </Link>
               </li>
               <li>
-                <Link to="/wishlist" className="footer-link">
+                <Link
+                  to="/wishlist"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Wishlist
                 </Link>
               </li>
@@ -60,35 +89,63 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4">Payment Methods</h4>
-            <ul className="space-y-2">
-              <li className="footer-item">Credit / Debit Cards</li>
-              <li className="footer-item">UPI Payments</li>
-              <li className="footer-item">Net Banking</li>
-              <li className="footer-item">Cash on Delivery</li>
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">
+              Payment Methods
+            </h4>
+            <ul className="space-y-3">
+              <li className="flex items-center gap-2">
+                <i className="fa-regular fa-credit-card text-emerald-500"></i>
+                Credit / Debit Cards
+              </li>
+              <li className="flex items-center gap-2">
+                <i className="fa-solid fa-bolt text-emerald-500"></i>
+                UPI Payments
+              </li>
+              <li className="flex items-center gap-2">
+                <i className="fa-solid fa-building-columns text-emerald-500"></i>
+                Net Banking
+              </li>
+              <li className="flex items-center gap-2">
+                <i className="fa-solid fa-hand-holding-dollar text-emerald-500"></i>
+                Cash on Delivery
+              </li>
             </ul>
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4">Customer Support</h4>
-            <ul className="space-y-2">
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">
+              Customer Support
+            </h4>
+            <ul className="space-y-3">
               <li>
-                <Link to="/help" className="footer-link">
+                <Link
+                  to="/help"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Help Center
                 </Link>
               </li>
               <li>
-                <Link to="/returns" className="footer-link">
+                <Link
+                  to="/returns"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Returns
                 </Link>
               </li>
               <li>
-                <Link to="/shipping" className="footer-link">
+                <Link
+                  to="/shipping"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Shipping Info
                 </Link>
               </li>
               <li>
-                <Link to="/track-order" className="footer-link">
+                <Link
+                  to="/track-order"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Track Order
                 </Link>
               </li>
@@ -96,25 +153,39 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4">Legal</h4>
-            <ul className="space-y-2">
+            <h4 className="text-white font-bold mb-6 uppercase tracking-widest text-xs">
+              Legal
+            </h4>
+            <ul className="space-y-3">
               <li>
-                <Link to="/privacy" className="footer-link">
+                <Link
+                  to="/privacy"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link to="/terms" className="footer-link">
+                <Link
+                  to="/terms"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Terms of Use
                 </Link>
               </li>
               <li>
-                <Link to="/cookies" className="footer-link">
+                <Link
+                  to="/cookies"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Cookie Policy
                 </Link>
               </li>
               <li>
-                <Link to="/security" className="footer-link">
+                <Link
+                  to="/security"
+                  className="hover:text-emerald-400 transition-colors"
+                >
                   Security
                 </Link>
               </li>
@@ -122,80 +193,43 @@ const Footer = () => {
           </div>
         </div>
 
-        {/* MIDDLE BAR */}
-        <div className="border-t border-gray-700 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <img src={assets.logo} alt="Foody" className="w-40" />
-          </div>
+        {/* Brand Bar */}
+        <div className="border-t border-slate-800 py-10 flex flex-col md:flex-row items-center justify-between gap-8">
+          <Link to="/" className="flex items-center gap-3 hover:opacity-80">
+            <img
+              src={assets.logo}
+              alt="Foody"
+              className="w-32 md:w-40 brightness-0 invert"
+            />
+          </Link>
 
-          <div className="flex flex-wrap gap-4 text-xs">
-            {/* Language */}
-            <div className="footer-pill">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M10.5 21l5.25-11.25L21 21M3 21h7.5M12 3v3m6.364 9.364l-2.121-2.121M6.343 6.343L4.222 4.222M21 12h-3M6 12H3"
-                />
-              </svg>
+          <div className="flex flex-wrap items-center justify-center gap-3 text-[11px] font-semibold uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800">
+              <i className="fa-solid fa-globe text-emerald-500"></i>
               English
             </div>
-
-            {/* Currency */}
-            <div className="footer-pill">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 6v12m-3-9h6m-7 6h8"
-                />
-              </svg>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800">
+              <i className="fa-solid fa-dollar-sign text-emerald-500"></i>
               USD
             </div>
-
-            {/* Location */}
-            <div className="footer-pill">
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 21s7.5-7.125 7.5-12A7.5 7.5 0 104.5 9c0 4.875 7.5 12 7.5 12z"
-                />
-              </svg>
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full bg-slate-900 border border-slate-800">
+              <i className="fa-solid fa-location-dot text-emerald-500"></i>
               United States
             </div>
           </div>
         </div>
 
-        {/* BOTTOM BAR */}
-        <div className="border-t border-gray-800 py-4 text-xs text-gray-400 flex flex-col md:flex-row items-center justify-between gap-3">
-          <p>© 2026 forever.com, Inc. or its affiliates</p>
-          <div className="flex gap-4">
-            <Link to="/terms" className="hover:underline">
+        {/* Bottom */}
+        <div className="border-t border-slate-900 py-8 text-[11px] text-slate-500 flex flex-col md:flex-row items-center justify-between gap-4">
+          <p>© 2026 ForEver, Inc. • Freshness Guaranteed.</p>
+          <div className="flex items-center gap-6">
+            <Link to="/terms" className="hover:text-white">
               Conditions of Use
             </Link>
-            <Link to="/privacy" className="hover:underline">
+            <Link to="/privacy" className="hover:text-white">
               Privacy Notice
             </Link>
-            <Link to="/ads" className="hover:underline">
+            <Link to="/ads" className="hover:text-white">
               Interest-Based Ads
             </Link>
           </div>

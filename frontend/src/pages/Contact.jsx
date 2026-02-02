@@ -1,151 +1,183 @@
-import React, { useState } from "react";
-import Title from "../components/Title";
-import NewsletterBox from "../components/NewsletterBox";
-import { assets } from "../assets/assets";
+import { useState, useContext, useEffect } from "react";
+import { ShopContext } from "../context/ShopContext";
+import axios from "axios";
+import { toast } from "react-toastify";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { motion } from "framer-motion";
 
-const Contact = () => {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    message: "",
-  });
+const ForgotPassword = () => {
+  const { token, backendUrl } = useContext(ShopContext);
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const handleSubmit = (e) => {
+  const [step, setStep] = useState("request");
+  const [email, setEmail] = useState("");
+  const [resetToken, setResetToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const tokenParam = searchParams.get("token");
+    if (tokenParam) {
+      setResetToken(tokenParam);
+      setStep("reset");
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
+    if (token) navigate("/");
+  }, [token, navigate]);
+
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
-    alert("Thank you! We'll get back to you soon.");
-    setFormData({ name: "", email: "", message: "" });
+    setLoading(true);
+
+    try {
+      if (!email) throw new Error("Please enter your email");
+
+      const response = await axios.post(
+        `${backendUrl}/api/user/forgot-password`,
+        { email },
+      );
+
+      if (response.data.success) {
+        toast.success("Reset link sent to your email!");
+        if (response.data.resetToken) {
+          setResetToken(response.data.resetToken);
+          setStep("reset");
+          toast.info("Use the form below to reset your password");
+        }
+        setEmail("");
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      if (!newPassword || !confirmPassword)
+        throw new Error("Please fill in all fields");
+
+      if (newPassword !== confirmPassword)
+        throw new Error("Passwords do not match");
+
+      if (newPassword.length < 6)
+        throw new Error("Password must be at least 6 characters");
+
+      const response = await axios.post(
+        `${backendUrl}/api/user/reset-password`,
+        { resetToken, newPassword },
+      );
+
+      if (response.data.success) {
+        toast.success("Password reset successfully! Redirecting...");
+        setTimeout(() => navigate("/login"), 2000);
+      } else {
+        toast.error(response.data.message);
+      }
+    } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="w-full">
-      {/* HEADER */}
-      <div className="text-center text-2xl sm:text-3xl pt-8 sm:pt-12 pb-4 border-t dark:border-slate-800">
-        <Title text1="CONTACT" text2="US" />
-        <p className="text-xs sm:text-sm text-gray-600 dark:text-slate-300 mt-2 max-w-xl mx-auto px-4">
-          We'd love to hear from you. Our team is always ready to help.
-        </p>
-      </div>
-
-      {/* MAIN SECTION */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-10 sm:my-16 grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16">
-        {/* IMAGE */}
-        <div className="relative w-full h-[240px] sm:h-[340px] md:h-[420px] lg:h-auto">
-          <img
-            className="w-full h-full object-cover rounded-2xl shadow-xl"
-            src={assets.contact_img}
-            alt="Contact us"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent rounded-2xl"></div>
-        </div>
-
-        {/* INFO CARDS */}
-        <div className="flex flex-col gap-6">
-          {/* STORE */}
-          <div className="p-6 sm:p-8 rounded-2xl shadow-md border bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 dark:border-green-700">
-            <h3 className="font-bold text-xl sm:text-2xl text-green-900 dark:text-green-400 mb-3">
-              Our Store
-            </h3>
-            <p className="text-gray-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed">
-              <span className="font-semibold">Address:</span>
-              <br />
-              Chittagong, Bangladesh
-            </p>
-            <p className="text-gray-700 dark:text-slate-300 text-sm sm:text-base mt-3">
-              <span className="font-semibold">Phone:</span> +880 1755-555555
-              <br />
-              <span className="font-semibold">Email:</span>{" "}
-              islammontaherul@gmail.com
-            </p>
-          </div>
-
-          {/* CAREER */}
-          <div className="p-6 sm:p-8 rounded-2xl shadow-md border bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 dark:border-orange-700">
-            <h3 className="font-bold text-xl sm:text-2xl text-orange-900 dark:text-orange-400 mb-3">
-              Join Our Team
-            </h3>
-            <p className="text-gray-700 dark:text-slate-300 text-sm sm:text-base mb-4">
-              We are always looking for passionate people to join our growing
-              team.
-            </p>
-            <button className="w-full sm:w-auto bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold px-7 py-3 rounded-full shadow hover:shadow-lg transition">
-              Explore Careers
-            </button>
-          </div>
-
-          {/* HOURS */}
-          <div className="p-6 sm:p-8 rounded-2xl shadow-md border bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 dark:border-blue-700">
-            <h3 className="font-bold text-xl sm:text-2xl text-blue-900 dark:text-blue-400 mb-3">
-              Business Hours
-            </h3>
-            <div className="text-gray-700 dark:text-slate-300 text-sm sm:text-base space-y-1">
-              <p>
-                <span className="font-semibold">Mon – Fri:</span> 8:00 AM – 8:00
-                PM
-              </p>
-              <p>
-                <span className="font-semibold">Saturday:</span> 9:00 AM – 6:00
-                PM
-              </p>
-              <p>
-                <span className="font-semibold">Sunday:</span> 10:00 AM – 4:00
-                PM
-              </p>
+    <div className="min-h-screen bg-white dark:bg-slate-950 flex items-center justify-center py-12 px-4 transition-colors">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="w-full max-w-md"
+      >
+        <div className="bg-white dark:bg-slate-900 rounded-[3rem] p-10 sm:p-14 border border-gray-100 dark:border-slate-800 shadow-2xl">
+          <div className="text-center mb-10">
+            <div className="w-16 h-16 bg-emerald-100 dark:bg-emerald-900/30 rounded-2xl flex items-center justify-center mx-auto mb-6 text-emerald-600">
+              <i className="fa-solid fa-key text-2xl"></i>
             </div>
+
+            <h1 className="text-3xl font-black text-slate-900 dark:text-white mb-3">
+              {step === "request" ? "Recover Password" : "Reset Password"}
+            </h1>
+
+            <p className="text-gray-500 dark:text-slate-400 text-sm">
+              {step === "request"
+                ? "Enter your email to receive reset instructions."
+                : "Choose a strong new password."}
+            </p>
           </div>
-        </div>
-      </div>
 
-      {/* CONTACT FORM */}
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
-        <div className="bg-gradient-to-r from-green-100 to-orange-100 dark:from-green-900/20 dark:to-orange-900/20 rounded-2xl p-6 sm:p-10 border dark:border-slate-700">
-          <h3 className="text-2xl sm:text-3xl font-bold text-center text-green-900 dark:text-green-400 mb-6">
-            Send Us a Message
-          </h3>
+          <form
+            onSubmit={
+              step === "request" ? handleForgotPassword : handleResetPassword
+            }
+            className="space-y-6"
+          >
+            {step === "request" ? (
+              <input
+                type="email"
+                placeholder="Email address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                className="w-full h-14 px-6 rounded-2xl bg-gray-50 dark:bg-slate-800 border-2 border-transparent focus:border-emerald-500 outline-none font-bold"
+              />
+            ) : (
+              <>
+                <input
+                  type="password"
+                  placeholder="New password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  required
+                  className="w-full h-14 px-6 rounded-2xl bg-gray-50 dark:bg-slate-800 border-2 border-transparent focus:border-emerald-500 outline-none font-bold"
+                />
 
-          <form onSubmit={handleSubmit} className="space-y-5">
-            <input
-              type="text"
-              placeholder="Your name"
-              value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
-              className="contact-input"
-              required
-            />
-            <input
-              type="email"
-              placeholder="Email address"
-              value={formData.email}
-              onChange={(e) =>
-                setFormData({ ...formData, email: e.target.value })
-              }
-              className="contact-input"
-              required
-            />
-            <textarea
-              placeholder="Your message"
-              value={formData.message}
-              onChange={(e) =>
-                setFormData({ ...formData, message: e.target.value })
-              }
-              className="contact-input h-32 resize-none"
-              required
-            />
+                <input
+                  type="password"
+                  placeholder="Confirm password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  className="w-full h-14 px-6 rounded-2xl bg-gray-50 dark:bg-slate-800 border-2 border-transparent focus:border-emerald-500 outline-none font-bold"
+                />
+              </>
+            )}
 
             <button
               type="submit"
-              className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white font-bold py-3 rounded-lg shadow hover:shadow-lg transition"
+              disabled={loading}
+              className="w-full py-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-2xl shadow-xl transition-all uppercase tracking-widest text-xs"
             >
-              Send Message
+              {loading
+                ? "Processing..."
+                : step === "request"
+                  ? "Send Reset Link"
+                  : "Reset Password"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                step === "request" ? navigate("/login") : setStep("request")
+              }
+              className="block mx-auto text-emerald-600 text-xs font-black uppercase tracking-widest"
+            >
+              ← Back
             </button>
           </form>
         </div>
-      </div>
-
-      <NewsletterBox />
+      </motion.div>
     </div>
   );
 };
 
-export default Contact;
+export default ForgotPassword;

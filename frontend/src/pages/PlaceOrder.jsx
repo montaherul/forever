@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import Title from "../components/Title";
 import CartTotal from "../components/CartTotal";
-import { assets } from "../assets/assets";
 import { ShopContext } from "../context/ShopContext";
 import { toast } from "react-toastify";
 import axios from "axios";
@@ -22,6 +21,7 @@ const PlaceOrder = () => {
     authChecked,
     normalizePricing,
   } = useContext(ShopContext);
+
   const [method, setMethod] = useState("cod");
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [addressSource, setAddressSource] = useState("primary");
@@ -38,77 +38,58 @@ const PlaceOrder = () => {
     phone: "",
   });
 
+  /* ===================== PREFILL ===================== */
+
   const applyAddressFromProfile = useMemo(
-    () =>
-      (source = "primary", prev = {}) => {
-        const nameParts = (user?.name || "").trim().split(" ");
-        const firstName = nameParts.shift() || "";
-        const lastName = nameParts.join(" ");
-
-        const pick = (primaryField, altField, fallback = "") => {
-          if (source === "secondary") return user?.[altField] || fallback;
-          return user?.[primaryField] || fallback;
-        };
-
-        return {
-          ...prev,
-          firstName: prev.firstName || firstName,
-          lastName: prev.lastName || lastName,
-          email: prev.email || user?.email || "",
-          phone: prev.phone || user?.phone || "",
-          street: pick(
-            "deliveryStreet",
-            "deliveryAltStreet",
-            user?.address || ""
-          ),
-          city: pick("deliveryCity", "deliveryAltCity", user?.location || ""),
-          state: pick("deliveryState", "deliveryAltState", ""),
-          zipcode: pick("deliveryZipcode", "deliveryAltZipcode", ""),
-          country: pick("deliveryCountry", "deliveryAltCountry", ""),
-        };
-      },
-    [user]
+    () => (source, prev) => {
+      const parts = (user?.name || "").split(" ");
+      return {
+        ...prev,
+        firstName: prev.firstName || parts[0] || "",
+        lastName: prev.lastName || parts.slice(1).join(" "),
+        email: prev.email || user?.email || "",
+        phone: prev.phone || user?.phone || "",
+        street: user?.deliveryStreet || "",
+        city: user?.deliveryCity || "",
+        state: user?.deliveryState || "",
+        zipcode: user?.deliveryZipcode || "",
+        country: user?.deliveryCountry || "",
+      };
+    },
+    [user],
   );
 
-  // Prefill checkout form from profile while keeping it editable
   useEffect(() => {
-    if (!user) return;
-    setFormData((prev) => applyAddressFromProfile(addressSource, prev));
+    if (user) setFormData((p) => applyAddressFromProfile(addressSource, p));
   }, [user, addressSource, applyAddressFromProfile]);
 
-  // Redirect to login if auth checked and not authenticated
   useEffect(() => {
-    if (authChecked && !token) {
-      navigate("/login");
-    }
+    if (authChecked && !token) navigate("/login");
   }, [authChecked, token, navigate]);
 
-  const onChangeHandler = (event) => {
-    const { name, value } = event.target;
-    setFormData((data) => ({ ...data, [name]: value }));
-  };
+  const onChangeHandler = (e) =>
+    setFormData((p) => ({ ...p, [e.target.name]: e.target.value }));
 
-  const onSubmitHandler = async (event) => {
-    event.preventDefault();
+  /* ===================== SUBMIT ===================== */
+
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
     setFormSubmitting(true);
+
     try {
       let orderItems = [];
 
-      Object.keys(cartItems).forEach((itemId) => {
-        Object.keys(cartItems[itemId]).forEach((size) => {
-          if (cartItems[itemId][size] > 0) {
-            let itemInfo = structuredClone(
-              products.find((product) => product._id === itemId)
-            );
-            // Normalize pricing from new pricingId structure
-            itemInfo = normalizePricing(itemInfo);
-            if (itemInfo) {
-              itemInfo.size = size;
-              itemInfo.quantity = cartItems[itemId][size];
-              // NEW: Add size-specific price to order item
-              itemInfo.sizePrice =
-                itemInfo.sizePricing?.[size] || itemInfo.price;
-              orderItems.push(itemInfo);
+      Object.keys(cartItems).forEach((id) => {
+        Object.keys(cartItems[id]).forEach((size) => {
+          if (cartItems[id][size] > 0) {
+            let product = normalizePricing(products.find((p) => p._id === id));
+            if (product) {
+              orderItems.push({
+                ...product,
+                size,
+                quantity: cartItems[id][size],
+                sizePrice: product.sizePricing?.[size] || product.price,
+              });
             }
           }
         });
@@ -116,359 +97,238 @@ const PlaceOrder = () => {
 
       const subtotal = calculateCartSubtotal();
       const couponSavings = appliedCoupon
-        ? subtotal >= (appliedCoupon.minPurchase || 0)
-          ? Number(
-              ((appliedCoupon.discountPercent / 100) * subtotal).toFixed(2)
-            )
-          : 0
+        ? (appliedCoupon.discountPercent / 100) * subtotal
         : 0;
-      const finalAmount =
-        subtotal === 0
-          ? 0
-          : Math.max(0, subtotal - couponSavings) + delivery_fee;
 
-      let orderData = {
+      const finalAmount = Math.max(0, subtotal - couponSavings) + delivery_fee;
+
+      const orderData = {
         address: formData,
         items: orderItems,
         amount: finalAmount,
-        addressSource,
         coupon: appliedCoupon || null,
         couponSavings,
         paymentMethod: method,
       };
 
-      switch (method) {
-        case "cod":
-        case "bkash":
-        case "nagad": {
-          const response = await axios.post(
-            `${backendUrl}/api/order/place`,
-            orderData,
-            { headers: { token } }
-          );
-          if (response.data.success) {
-            const msg =
-              method === "cod"
-                ? "Order placed successfully!"
-                : "Order placed. Complete payment via " +
-                  (method === "bkash" ? "bKash" : "Nagad") +
-                  " to confirm.";
-            toast.success(msg);
-            setCartItems({});
-            navigate("/orders");
-          } else {
-            toast.error(response.data.message);
-          }
-          break;
-        }
-        default:
-          toast.error("Payment method not available");
-          break;
-      }
-    } catch (error) {
-      console.error(error);
-      toast.error(error.message);
+      const res = await axios.post(`${backendUrl}/api/order/place`, orderData, {
+        headers: { token },
+      });
+
+      if (res.data.success) {
+        toast.success("Order placed successfully!");
+        setCartItems({});
+        navigate("/orders");
+      } else toast.error(res.data.message);
+    } catch (err) {
+      toast.error("Order failed. Try again.");
     } finally {
       setFormSubmitting(false);
     }
   };
 
+  /* ===================== UI ===================== */
+
   return (
-    <form
-      onSubmit={onSubmitHandler}
-      className="min-h-[80vh] border-t pt-10 pb-16"
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-3xl mb-8">
-          <Title text1={"CHECKOUT"} text2={"DETAILS"} />
-        </div>
+    <form onSubmit={onSubmitHandler} className="min-h-screen bg-gray-50 py-12">
+      <div className="max-w-7xl mx-auto px-4">
+        <Title text1="CHECKOUT" text2="DETAILS" />
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Delivery Form */}
-          <div className="lg:col-span-2">
-            {/* Delivery Information Section */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 mb-8 border-2 border-green-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                DELIVERY INFORMATION
-              </h2>
+        <div className="grid lg:grid-cols-3 gap-10 mt-10">
+          {/* LEFT */}
+          <div className="lg:col-span-2 space-y-10">
+            {/* DELIVERY */}
+            <div className="bg-white rounded-3xl shadow-lg p-8 border">
+              <h2 className="text-xl font-black mb-6">Delivery Information</h2>
 
-              {/* Address Selector */}
-              <div className="mb-6 flex items-center gap-4 flex-wrap">
-                <label className="text-sm font-semibold text-gray-700">
-                  Use saved address:
-                </label>
-                <select
-                  value={addressSource}
-                  onChange={(e) => setAddressSource(e.target.value)}
-                  className="px-4 py-2 border-2 border-gray-300 rounded-lg focus:border-green-500 focus:outline-none"
-                >
-                  <option value="primary">Primary</option>
-                  <option
-                    value="secondary"
-                    disabled={
-                      !user?.deliveryAltStreet && !user?.deliveryAltCity
-                    }
-                  >
-                    {user?.deliveryAltLabel
-                      ? `Secondary - ${user.deliveryAltLabel}`
-                      : "Secondary"}
-                  </option>
-                </select>
-              </div>
-
-              {/* Name Fields */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    First Name
-                  </label>
-                  <input
-                    required
-                    onChange={onChangeHandler}
-                    name="firstName"
-                    value={formData.firstName}
-                    className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                    type="text"
-                    placeholder="John"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Last Name
-                  </label>
-                  <input
-                    required
-                    onChange={onChangeHandler}
-                    name="lastName"
-                    value={formData.lastName}
-                    className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                    type="text"
-                    placeholder="Doe"
-                  />
-                </div>
-              </div>
-
-              {/* Email */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Email Address
-                </label>
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
                 <input
-                  required
+                  name="firstName"
+                  value={formData.firstName}
                   onChange={onChangeHandler}
-                  name="email"
-                  value={formData.email}
-                  className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                  type="email"
-                  placeholder="john@example.com"
+                  placeholder="First name"
+                  className="input"
+                  required
+                />
+                <input
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={onChangeHandler}
+                  placeholder="Last name"
+                  className="input"
+                  required
                 />
               </div>
 
-              {/* Street */}
-              <div className="mb-6">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Street Address
-                </label>
+              <input
+                name="email"
+                value={formData.email}
+                onChange={onChangeHandler}
+                placeholder="Email address"
+                className="input mb-4"
+                required
+              />
+
+              <input
+                name="street"
+                value={formData.street}
+                onChange={onChangeHandler}
+                placeholder="Street address"
+                className="input mb-4"
+                required
+              />
+
+              <div className="grid sm:grid-cols-2 gap-4 mb-4">
                 <input
-                  required
+                  name="city"
+                  value={formData.city}
                   onChange={onChangeHandler}
-                  name="street"
-                  value={formData.street}
-                  className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                  type="text"
-                  placeholder="123 Main Street"
+                  placeholder="City"
+                  className="input"
+                  required
+                />
+                <input
+                  name="state"
+                  value={formData.state}
+                  onChange={onChangeHandler}
+                  placeholder="State"
+                  className="input"
+                  required
                 />
               </div>
 
-              {/* City & State */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    City
-                  </label>
-                  <input
-                    required
-                    onChange={onChangeHandler}
-                    name="city"
-                    value={formData.city}
-                    className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                    type="text"
-                    placeholder="New York"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    State/Province
-                  </label>
-                  <input
-                    required
-                    onChange={onChangeHandler}
-                    name="state"
-                    value={formData.state}
-                    className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                    type="text"
-                    placeholder="NY"
-                  />
-                </div>
-              </div>
-
-              {/* Zipcode & Country */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Postal Code
-                  </label>
-                  <input
-                    required
-                    onChange={onChangeHandler}
-                    name="zipcode"
-                    value={formData.zipcode}
-                    className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                    type="text"
-                    placeholder="10001"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Country
-                  </label>
-                  <input
-                    required
-                    onChange={onChangeHandler}
-                    name="country"
-                    value={formData.country}
-                    className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                    type="text"
-                    placeholder="United States"
-                  />
-                </div>
-              </div>
-
-              {/* Phone */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Phone Number
-                </label>
+              <div className="grid sm:grid-cols-2 gap-4">
                 <input
-                  required
+                  name="zipcode"
+                  value={formData.zipcode}
                   onChange={onChangeHandler}
-                  name="phone"
-                  value={formData.phone}
-                  className="w-full border-2 border-gray-300 rounded-lg py-3 px-4 focus:border-green-500 focus:outline-none focus:ring-2 focus:ring-green-100 transition-all"
-                  type="tel"
-                  placeholder="+1 (555) 000-0000"
+                  placeholder="ZIP code"
+                  className="input"
+                  required
+                />
+                <input
+                  name="country"
+                  value={formData.country}
+                  onChange={onChangeHandler}
+                  placeholder="Country"
+                  className="input"
+                  required
                 />
               </div>
             </div>
 
-            {/* Payment Method Section */}
-            <div className="bg-white rounded-2xl shadow-lg p-8 border-2 border-orange-200">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                PAYMENT METHOD
-              </h2>
+            {/* PAYMENT */}
+            <div className="bg-white rounded-3xl shadow-lg p-8 border">
+              <h2 className="text-xl font-black mb-6">Payment Method</h2>
 
-              <div className="space-y-3">
-                {[
-                  {
-                    key: "cod",
-                    title: "Cash on Delivery",
-                    description: "Pay when your order arrives at your doorstep",
-                  },
-                  {
-                    key: "bkash",
-                    title: "bKash",
-                    description:
-                      "Pay securely via bKash after placing the order",
-                  },
-                  {
-                    key: "nagad",
-                    title: "Nagad",
-                    description:
-                      "Pay securely via Nagad after placing the order",
-                  },
-                ].map((option) => (
-                  <button
-                    key={option.key}
-                    type="button"
-                    onClick={() => setMethod(option.key)}
-                    className={`w-full flex items-center gap-4 p-5 rounded-xl border-2 transition-all duration-300 ${
-                      method === option.key
-                        ? "border-green-600 bg-green-50"
-                        : "border-gray-300 bg-white hover:border-green-400"
+              {[
+                { id: "cod", label: "Cash on Delivery" },
+                { id: "bkash", label: "bKash" },
+                { id: "nagad", label: "Nagad" },
+              ].map((p) => (
+                <button
+                  type="button"
+                  key={p.id}
+                  onClick={() => setMethod(p.id)}
+                  className={`w-full p-5 mb-3 rounded-xl border flex items-center gap-4 ${
+                    method === p.id
+                      ? "border-emerald-600 bg-emerald-50"
+                      : "border-gray-200"
+                  }`}
+                >
+                  <div
+                    className={`w-5 h-5 rounded-full border-2 ${
+                      method === p.id
+                        ? "bg-emerald-600 border-emerald-600"
+                        : "border-gray-400"
                     }`}
-                  >
-                    <div
-                      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                        method === option.key
-                          ? "border-green-600 bg-green-600"
-                          : "border-gray-400"
-                      }`}
-                    >
-                      {method === option.key && (
-                        <div className="w-2 h-2 bg-white rounded-full"></div>
-                      )}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-bold text-gray-900">{option.title}</p>
-                      <p className="text-sm text-gray-600">
-                        {option.description}
-                      </p>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                  />
+                  <span className="font-bold">{p.label}</span>
+                </button>
+              ))}
             </div>
           </div>
+          {/* RIGHT */}
+          <div className="sticky top-24 h-fit">
+            <div className="bg-white rounded-[2.5rem] shadow-2xl border border-slate-100 overflow-hidden">
+              {/* HEADER */}
+              <div className="p-8 border-b bg-gradient-to-r from-emerald-50 to-transparent">
+                <h3 className="text-xl font-black text-slate-900 tracking-tight">
+                  Order Summary
+                </h3>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-emerald-600 mt-1">
+                  Final review before payment
+                </p>
+              </div>
 
-          {/* Right Column - Order Summary */}
-          <div>
-            <div className="bg-gradient-to-br from-green-50 to-green-100 rounded-2xl shadow-xl p-8 sticky top-24 border-2 border-green-300">
-              <h3 className="text-2xl font-bold text-green-900 mb-6 flex items-center gap-2">
-                ORDER SUMMARY
-              </h3>
-
-              <div className="space-y-4 mb-6">
+              {/* CONTENT */}
+              <div className="p-8 space-y-8">
                 <CartTotal />
+
+                {/* CTA */}
+                <button
+                  type="submit"
+                  disabled={formSubmitting}
+                  className="relative w-full py-5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white font-black rounded-2xl shadow-xl shadow-emerald-600/30 transition-all uppercase tracking-[0.2em] text-xs flex items-center justify-center gap-3 active:scale-95"
+                >
+                  {formSubmitting ? (
+                    <>
+                      <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                      Processing
+                    </>
+                  ) : (
+                    <>
+                      Place Order
+                      <i className="fa-solid fa-arrow-right-long text-xs"></i>
+                    </>
+                  )}
+                </button>
+
+                {/* TRUST ROW */}
+                <div className="grid grid-cols-3 gap-3 text-center pt-4 border-t">
+                  <Trust icon="fa-shield-halved" label="Secure" />
+                  <Trust icon="fa-truck-fast" label="Fast Delivery" />
+                  <Trust icon="fa-leaf" label="Fresh Only" />
+                </div>
               </div>
 
-              {/* Trust Badges */}
-              <div className="space-y-3 pt-6 border-t-2 border-green-300">
-                <div className="flex items-center gap-3 text-sm text-green-800">
-                  <span className="text-xl">✓</span>
-                  <span className="font-medium">Secure Checkout</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-green-800">
-                  <span className="text-xl">✓</span>
-                  <span className="font-medium">Same-day Delivery</span>
-                </div>
-                <div className="flex items-center gap-3 text-sm text-green-800">
-                  <span className="text-xl">✓</span>
-                  <span className="font-medium">100% Fresh Guarantee</span>
-                </div>
+              {/* FOOTER NOTE */}
+              <div className="px-8 py-4 bg-slate-50 text-center">
+                <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+                  SSL Encrypted · Easy Returns · 24/7 Support
+                </p>
               </div>
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={formSubmitting}
-                className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {formSubmitting ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
-                    Processing...
-                  </span>
-                ) : (
-                  "✓ PLACE ORDER"
-                )}
-              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {/* INPUT STYLE */}
+      <style>
+        {`
+          .input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 14px;
+            font-weight: 600;
+            outline: none;
+          }
+          .input:focus {
+            border-color: #10b981;
+          }
+        `}
+      </style>
     </form>
   );
 };
+const Trust = ({ icon, label }) => (
+  <div className="flex flex-col items-center gap-1 text-emerald-600">
+    <i className={`fa-solid ${icon} text-lg`}></i>
+    <span className="text-[10px] font-black uppercase tracking-widest text-slate-600">
+      {label}
+    </span>
+  </div>
+);
 
 export default PlaceOrder;
-

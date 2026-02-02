@@ -4,7 +4,6 @@ import Title from "./Title";
 
 const CartTotal = () => {
   const {
-    currency,
     delivery_fee,
     calculateCartSubtotal,
     appliedCoupon,
@@ -13,83 +12,88 @@ const CartTotal = () => {
   } = useContext(ShopContext);
 
   const subtotal = calculateCartSubtotal();
+
   const couponSavings = appliedCoupon
     ? subtotal >= (appliedCoupon.minPurchase || 0)
       ? Number(((appliedCoupon.discountPercent / 100) * subtotal).toFixed(2))
       : 0
     : 0;
+
   const total =
     subtotal === 0 ? 0 : Math.max(0, subtotal - couponSavings) + delivery_fee;
 
   return (
-    <div className="w-full">
-      <div className="text-2xl mb-6">
-        <Title text1={"CART"} text2={"TOTALS"} />
+    <div className="w-full bg-white dark:bg-slate-900 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-800 shadow-xl shadow-black/[0.02]">
+      <div className="mb-8">
+        <Title text1="CART" text2="SUMMARY" />
       </div>
-      <div className="space-y-4">
-        <div className="flex justify-between items-center py-3 border-b-2 border-gray-200 dark:border-slate-700">
-          <p className="text-gray-700 dark:text-slate-300 font-medium">
+
+      <div className="space-y-6">
+        <div className="flex justify-between items-center group">
+          <span className="text-slate-500 dark:text-slate-400 font-bold text-sm uppercase tracking-widest">
             Subtotal
-          </p>
-          <p className="text-lg font-semibold text-gray-800 dark:text-slate-100">
+          </span>
+          <span className="text-lg font-black text-slate-900 dark:text-white">
             {formatCurrency(subtotal)}
-          </p>
+          </span>
         </div>
 
-        <div className="flex justify-between items-center py-3 border-b-2 border-gray-200 dark:border-slate-700">
+        <div className="flex justify-between items-start">
           <div>
-            <p className="text-gray-700 dark:text-slate-300 font-medium">
-              Shipping Fee
-            </p>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-1">
-              Same-day delivery
+            <span className="text-slate-500 dark:text-slate-400 font-bold text-sm uppercase tracking-widest">
+              Shipping
+            </span>
+            <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 mt-1 uppercase tracking-[0.2em]">
+              Priority Delivery
             </p>
           </div>
-          <p className="text-lg font-semibold text-green-600 dark:text-green-400">
+          <span className="text-lg font-black text-slate-900 dark:text-white">
             {subtotal === 0 ? formatCurrency(0) : formatCurrency(delivery_fee)}
-          </p>
+          </span>
         </div>
 
-        {/* Coupon Display Only (No Input) */}
         {appliedCoupon && (
-          <div className="py-3 border-b-2 border-gray-200 dark:border-slate-700">
-            <div className="flex justify-between items-center">
+          <div className="p-4 rounded-2xl bg-emerald-50 dark:bg-emerald-900/10 border border-emerald-100 dark:border-emerald-800/30 flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center text-white">
+                <i className="fa-solid fa-tag text-xs"></i>
+              </div>
               <div>
-                <p className="text-gray-700 dark:text-slate-300 font-medium">
+                <p className="text-[10px] font-black text-emerald-800 dark:text-emerald-400 uppercase tracking-widest">
                   Coupon Applied
                 </p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                  Code: {appliedCoupon.code}
+                <p className="text-xs font-bold text-slate-600 dark:text-slate-300">
+                  {appliedCoupon.code}
                 </p>
               </div>
-              <button
-                onClick={clearCoupon}
-                className="text-sm text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 font-semibold"
-              >
-                Remove
-              </button>
             </div>
+            <button
+              onClick={clearCoupon}
+              className="text-[10px] font-black text-rose-500 uppercase tracking-widest hover:text-rose-600 transition-colors"
+            >
+              Remove
+            </button>
           </div>
         )}
 
         {couponSavings > 0 && (
-          <div className="flex justify-between items-center py-3 border-b-2 border-gray-200 dark:border-slate-700 text-green-700 dark:text-green-400">
-            <p className="font-semibold flex items-center gap-2">
-              <i className="fa-solid fa-tag text-emerald-500"></i>
-              Coupon Savings
-            </p>
-            <p className="text-lg font-semibold">
-              - {formatCurrency(couponSavings)}
-            </p>
+          <div className="flex justify-between items-center text-emerald-600 dark:text-emerald-400 font-black">
+            <span className="text-sm uppercase tracking-widest">Discounts</span>
+            <span className="text-lg">-{formatCurrency(couponSavings)}</span>
           </div>
         )}
 
-        <div className="flex justify-between items-center py-4 bg-gradient-to-r from-green-50 to-green-100 dark:from-emerald-900/20 dark:to-green-900/20 -mx-4 px-4 rounded-lg border-2 border-green-200 dark:border-green-800">
-          <p className="text-xl font-bold text-green-900 dark:text-green-400">
-            Total
-          </p>
-          <p className="text-2xl font-bold text-green-700 dark:text-green-400">
-            {formatCurrency(total)}
+        <div className="pt-8 border-t dark:border-slate-800">
+          <div className="flex justify-between items-center mb-1">
+            <span className="text-xl font-black text-slate-900 dark:text-white uppercase tracking-tight">
+              Total Payable
+            </span>
+            <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400">
+              {formatCurrency(total)}
+            </span>
+          </div>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-right">
+            Includes VAT & Taxes
           </p>
         </div>
       </div>

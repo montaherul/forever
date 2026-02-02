@@ -433,6 +433,26 @@ const NavBar = () => {
                   </span>
                 )}
               </button>
+
+              {/* WISHLIST */}
+              <button
+                onClick={() => navigate("/wishlist")}
+                className="relative p-2 rounded-full border border-gray-300 dark:border-gray-700 transition-all hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95"
+                title="Wishlist"
+                type="button"
+              >
+                <i className="fa-solid fa-heart text-lg"></i>
+              </button>
+              {/* compare */}
+              <button
+                onClick={() => navigate("/compare")}
+                className="relative p-2 rounded-full border border-gray-300 dark:border-gray-700 transition-all hover:scale-110 hover:bg-gray-100 dark:hover:bg-gray-800 active:scale-95"
+                title="Compare"
+                type="button"
+              >
+                <i className="fa-solid fa-scale-balanced text-lg"></i>
+              </button>
+
             </div>
           </div>
         </nav>

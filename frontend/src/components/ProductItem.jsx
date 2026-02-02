@@ -1,34 +1,21 @@
-import React, { useContext, useMemo } from "react";
+import React, { useContext } from "react";
 import { ShopContext } from "../context/ShopContext";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const cardVariant = {
-  hidden: { opacity: 0, y: 28, scale: 0.98 },
-  show: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.45, ease: "easeOut" },
-  },
-};
-
-// tiny helper for stars
 const Stars = ({ value = 4.8 }) => {
   const full = Math.round(Math.max(0, Math.min(5, value)));
   return (
-    <span className="inline-flex items-center gap-0.5">
+    <div className="flex items-center gap-0.5">
       {Array.from({ length: 5 }).map((_, i) => (
-        <span
+        <i
           key={i}
-          className={
-            i < full ? "text-amber-400" : "text-slate-300 dark:text-slate-600"
-          }
-        >
-          ★
-        </span>
+          className={`fa-solid fa-star text-[10px] ${
+            i < full ? "text-amber-400" : "text-slate-200 dark:text-slate-800"
+          }`}
+        ></i>
       ))}
-    </span>
+    </div>
   );
 };
 
@@ -42,219 +29,140 @@ const ProductItem = ({
   sizes,
   category,
   inStock = true,
-  stockQuantity,
   sizeStock,
-
-  // optional (won’t break existing calls)
   rating = 4.8,
   reviewCount = 0,
 }) => {
   const { currency, addToCart, navigate, formatCurrency } =
     useContext(ShopContext);
 
-  // premium fallback image (no extra file needed)
-  const fallbackImg = useMemo(() => {
-    const svg = encodeURIComponent(`
-      <svg xmlns="http://www.w3.org/2000/svg" width="600" height="420">
-        <defs>
-          <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
-            <stop stop-color="#0b1220" offset="0"/>
-            <stop stop-color="#111827" offset="1"/>
-          </linearGradient>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#g)"/>
-        <circle cx="470" cy="120" r="120" fill="rgba(245,158,11,0.16)"/>
-        <circle cx="120" cy="340" r="140" fill="rgba(16,185,129,0.14)"/>
-        <text x="50%" y="52%" dominant-baseline="middle" text-anchor="middle"
-          fill="rgba(255,255,255,0.55)" font-size="26" font-family="Inter, Arial, sans-serif">
-          No image
-        </text>
-      </svg>
-    `);
-    return `data:image/svg+xml;charset=utf-8,${svg}`;
-  }, []);
-
   const productImage =
-    Array.isArray(image) && image.length > 0 ? image[0] : fallbackImg;
+    Array.isArray(image) && image.length > 0
+      ? image[0]
+      : "https://picsum.photos/400/500";
 
   const hasDiscount = Number(discount) > 0;
+  const isSoldOut =
+    !inStock ||
+    (sizes || []).every((s) => sizeStock && Number(sizeStock[s]) <= 0);
 
-  const hasSizePricing = sizePricing && Object.keys(sizePricing).length > 0;
-  const showFromPrice = hasSizePricing && sizes && sizes.length > 1;
+  const finalPrice = hasDiscount ? price * (1 - discount / 100) : price;
 
-  const sizeSoldOut = (sizes || []).every(
-    (s) => sizeStock && sizeStock[s] !== undefined && Number(sizeStock[s]) <= 0,
-  );
-
-  const canQuickAdd = !sizes || sizes.length === 0 || sizes.length === 1;
-  const quickAddSize = sizes && sizes.length === 1 ? sizes[0] : undefined;
-
-  const finalPrice = hasDiscount
-    ? (Number(price) * (1 - Number(discount) / 100)).toFixed(2)
-    : Number(price).toFixed(2);
+  const canQuickAdd = (!sizes || sizes.length <= 1) && !isSoldOut;
 
   return (
-    <motion.div variants={cardVariant} initial="hidden" animate="show">
-      <Link className="group block" to={id ? `/product/${id}` : "#"}>
-        <motion.div
-          whileHover={{ y: -6 }}
-          transition={{ type: "spring", stiffness: 220, damping: 18 }}
-          className="
-            relative overflow-hidden rounded-2xl
-            border border-slate-200/70 dark:border-white/10
-            bg-white dark:bg-slate-950
-            shadow-sm hover:shadow-2xl
-            transition-all
-          "
-        >
-          {/* Premium glow ring (subtle) */}
-          <div
-            className="
-              pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100
-              transition-opacity duration-300
-              [background:radial-gradient(800px_circle_at_20%_-20%,rgba(245,158,11,0.20),transparent_40%),radial-gradient(700px_circle_at_110%_10%,rgba(16,185,129,0.18),transparent_40%)]
-            "
-          />
-
-          {/* Out of stock overlay */}
-          {(!inStock || sizeSoldOut) && (
-            <div className="absolute inset-0 z-20 flex items-center justify-center bg-white/75 dark:bg-slate-950/75 backdrop-blur-sm">
-              <div className="rounded-2xl border border-rose-400/30 bg-rose-500/10 px-4 py-2 text-rose-700 dark:text-rose-200 font-bold">
-                Out of Stock
-              </div>
-            </div>
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      className="group"
+    >
+      <div className="relative flex flex-col h-full bg-white dark:bg-slate-900 rounded-[2rem] border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] transition-all duration-500 overflow-hidden">
+        {/* Top Badges */}
+        <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+          {hasDiscount && (
+            <span className="px-3 py-1 bg-rose-500 text-white text-[10px] font-black rounded-full shadow-lg shadow-rose-500/20 uppercase tracking-widest">
+              -{discount}%
+            </span>
           )}
+          {isSoldOut ? (
+            <span className="px-3 py-1 bg-slate-900/80 backdrop-blur-md text-white text-[10px] font-black rounded-full uppercase tracking-widest">
+              Sold Out
+            </span>
+          ) : (
+            <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-black rounded-full shadow-lg shadow-emerald-500/20 uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">
+              In Stock
+            </span>
+          )}
+        </div>
 
-          {/* Image */}
-          <div className="relative">
-            <motion.img
-              whileHover={{ scale: 1.06 }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
-              className="w-full h-56 object-cover"
-              src={productImage}
-              alt={name || "Product"}
-              loading="lazy"
-            />
+        {/* Image */}
+        <Link
+          to={`/product/${id}`}
+          className="relative h-64 sm:h-72 overflow-hidden block"
+        >
+          <img
+            src={productImage}
+            alt={name}
+            className={`w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 ${
+              isSoldOut ? "grayscale opacity-50" : ""
+            }`}
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
 
-            {/* Top gradient for readability */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-black/0 to-black/10 opacity-70" />
-
-            {/* Badge */}
-            <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-              {hasDiscount ? (
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold tracking-wide bg-amber-400 text-slate-900 shadow">
-                  -{discount}%
-                </span>
-              ) : (
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold tracking-wide bg-slate-900/70 text-white border border-white/15">
-                  NEW
-                </span>
-              )}
-
-              {!inStock || sizeSoldOut ? (
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-rose-500/15 text-rose-200 border border-rose-400/20">
-                  SOLD OUT
-                </span>
-              ) : null}
-            </div>
-
-            {/* Quick Add (only for single-size/no-size items) */}
-            {canQuickAdd && inStock && !sizeSoldOut && (
+          {/* Quick Actions */}
+          <div className="absolute inset-x-4 bottom-4 z-30 translate-y-4 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
+            {canQuickAdd ? (
               <motion.button
-                initial={{ opacity: 0, y: 16 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.96 }}
-                className="
-                  absolute bottom-3 left-3 right-3 z-10
-                  rounded-xl px-4 py-2.5
-                  bg-amber-400 hover:bg-amber-500
-                  text-slate-900 font-extrabold text-sm
-                  shadow-lg
-                  opacity-0 group-hover:opacity-100
-                  transition-all
-                "
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={(e) => {
                   e.preventDefault();
-                  if (quickAddSize) addToCart(id, quickAddSize);
-                  else navigate(`/product/${id}`);
+                  if (sizes?.[0]) addToCart(id, sizes[0]);
+                  else addToCart(id, "default");
                 }}
+                className="w-full py-3.5 bg-white text-slate-900 font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-2xl flex items-center justify-center gap-2"
               >
-                {quickAddSize ? "Quick Add" : "View & Add"}
+                <i className="fa-solid fa-plus text-xs"></i>
+                Quick Add
+              </motion.button>
+            ) : (
+              <motion.button
+                whileHover={{ scale: 1.03 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(`/product/${id}`);
+                }}
+                className="w-full py-3.5 bg-emerald-600 text-white font-black text-[10px] uppercase tracking-[0.2em] rounded-2xl shadow-2xl"
+              >
+                Select Options
               </motion.button>
             )}
           </div>
+        </Link>
 
-          {/* Content */}
-          <div className="p-4">
-            {/* Category (optional, subtle) */}
-            {category ? (
-              <div className="text-[11px] font-semibold text-slate-500 dark:text-white/55 uppercase tracking-wider">
-                {category}
-              </div>
-            ) : null}
-
-            {/* Name */}
-            <div className="mt-1 text-[15px] font-semibold text-slate-900 dark:text-white line-clamp-2 min-h-[42px]">
-              {name || "No Name"}
-            </div>
-
-            {/* Price + rating */}
-            <div className="mt-3 flex items-start justify-between gap-3">
-              <div>
-                <div className="text-lg font-extrabold text-emerald-600 dark:text-emerald-300">
-                  {showFromPrice && (
-                    <span className="mr-1 text-xs font-semibold text-slate-500 dark:text-white/55">
-                      From
-                    </span>
-                  )}
-                  {formatCurrency(finalPrice)}
-                </div>
-
-                {hasDiscount && (
-                  <div className="text-xs text-slate-400 dark:text-white/45 line-through">
-                    {formatCurrency(Number(price).toFixed(2))}
-                  </div>
-                )}
-              </div>
-
-              <div className="text-right">
-                <div className="flex items-center justify-end gap-1 text-xs">
-                  <Stars value={rating} />
-                  <span className="font-semibold text-slate-600 dark:text-white/70">
-                    {Number(rating).toFixed(1)}
-                  </span>
-                </div>
-                {reviewCount > 0 ? (
-                  <div className="text-[11px] text-slate-500 dark:text-white/50">
-                    ({reviewCount})
-                  </div>
-                ) : (
-                  <div className="text-[11px] text-slate-500 dark:text-white/50">
-                    Trusted
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Bottom row */}
-            <div className="mt-4 pt-3 border-t border-slate-200/70 dark:border-white/10 flex items-center justify-between text-xs font-semibold">
-              <span className="text-slate-600 dark:text-white/70">
-                Fast Delivery
-              </span>
-
-              <span
-                className={
-                  inStock && !sizeSoldOut
-                    ? "px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-700 dark:text-emerald-200 border border-emerald-400/15"
-                    : "px-2.5 py-1 rounded-full bg-rose-500/10 text-rose-700 dark:text-rose-200 border border-rose-400/15"
-                }
-              >
-                {inStock && !sizeSoldOut ? "In Stock" : "Out of Stock"}
+        {/* Content */}
+        <div className="p-6 flex flex-col flex-1">
+          <div className="flex justify-between items-start mb-2">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+              {category || "Collection"}
+            </span>
+            <div className="flex items-center gap-1.5">
+              <Stars value={rating} />
+              <span className="text-[10px] font-bold text-slate-500">
+                {reviewCount > 0 ? `(${reviewCount})` : "New"}
               </span>
             </div>
           </div>
-        </motion.div>
-      </Link>
+
+          <Link to={`/product/${id}`} className="flex-1">
+            <h3 className="text-base font-bold text-slate-900 dark:text-white leading-tight mb-3 line-clamp-2 hover:text-emerald-600 transition-colors">
+              {name}
+            </h3>
+          </Link>
+
+          <div className="flex items-end justify-between mt-auto">
+            <div className="flex flex-col">
+              {hasDiscount && (
+                <span className="text-xs text-slate-400 line-through font-medium mb-0.5">
+                  {formatCurrency(price)}
+                </span>
+              )}
+              <span className="text-xl font-black text-slate-900 dark:text-emerald-400">
+                {formatCurrency(finalPrice)}
+              </span>
+            </div>
+
+            <Link
+              to={`/product/${id}`}
+              className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 flex items-center justify-center text-slate-400 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors"
+            >
+              <i className="fa-solid fa-arrow-right-long"></i>
+            </Link>
+          </div>
+        </div>
+      </div>
     </motion.div>
   );
 };
